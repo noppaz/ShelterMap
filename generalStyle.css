@@ -1,3 +1,12 @@
 body {
   margin: 0;
 }
+
+.text {
+	font-family: 'Roboto', sans-serif;
+}
+
+.faded {
+	background-color: rgba(255, 255, 255, 0.5);
+	color: rgb(128, 128, 128);
+}
