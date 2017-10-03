@@ -39,7 +39,9 @@ function initMap() {
     target: 'map',
     layers: [
       new ol.layer.Tile({
-        source: new ol.source.OSM()
+        source: new ol.source.OSM({
+          //"url" : "http://tile2.opencyclemap.org/transport/{z}/{x}/{y}.png"
+        })
       })
     ],
     view: new ol.View({
@@ -55,6 +57,16 @@ function initMap() {
   
 	// Add relevent controls
 	addMousePosition(map);
+  map.on('singleclick', function(evt) {
+    var feature = map.forEachFeatureAtPixel(evt.pixel, function(feature, layer) {
+        //you can add a condition on layer to restrict the listener
+        return feature;
+        });
+    if (feature) {
+      console.log(feature);
+        //here you can add you code to display the coordinates or whatever you want to do
+    }
+  });
 
 	// Retrun the map
 	return map;
@@ -111,6 +123,7 @@ function initLayer(kkod, color) {
     map.addLayer(vectorLayer);
     LAYER_LIST[layerID] = vectorLayer;
     console.log(LAYER_LIST);
+
   });
 }
 
@@ -166,7 +179,7 @@ function initFilterDiv() {
 
     // Add a label next to the checkbox 
     var label = document.createElement('label')
-    label.htmlFor = "id";
+    label.htmlFor = LAYERS[i].toString();
     label.appendChild(document.createTextNode("id" + LAYERS[i].toString()));
 
     filterContainer.appendChild(checkbox);
