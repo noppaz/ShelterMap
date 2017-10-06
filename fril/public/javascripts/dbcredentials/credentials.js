@@ -1,11 +1,10 @@
 var pg = require('pg');
 
-var host ='localhost';
+var host ='webgis.lemni.se';
 var port ='5432';
-var dbName = 'spatial_database_lab3_database';
+var dbName = 'gisdb';
 
-var connectionString = 'postgres://postgres:postgres@'+host+':'+port+'/'+dbName;
-
+var connectionString = 'postgres://postgres:postgres@'+ host + ':' + port + '/' + dbName + '?ssl=true';
 
 // Export the connection string for usage by the API
 module.exports = connectionString;

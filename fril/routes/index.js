@@ -76,6 +76,7 @@ router.post('/api/getClosestFeature', function(req, res) {
 						"ORDER BY dist_km ASC LIMIT 1;"
 
     apiClient.query(queryString)
+
         .then(function(results) {
             console.log(results.rows);
 
@@ -85,3 +86,4 @@ router.post('/api/getClosestFeature', function(req, res) {
         })
         .catch(e => console.error(e.stack));
 });
+
