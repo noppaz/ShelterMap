@@ -14,6 +14,18 @@ var LAYERS = [
   9935,             // Stugby
   ];
 
+var LAYER_NAMES = [
+  'Kåta',
+  'Vindskydd',
+  'Campingplats',
+  'Vindskydd, fjällen',
+  'Rastplats, avlägsen',
+  'Fjällstation',
+  'Övernattningsstuga',
+  'Rastskydd',
+  'Stugby'
+  ];
+
 var LAYER_COLORS = [
 '255, 255, 255',    // Kåta
 '255, 0, 255',      // Vindskydd
@@ -32,6 +44,7 @@ var LAYER_LIST = [];
 // ---------------------- Initialize stuff ----------------------
 // ##############################################################
 var map;
+var CURRENT_SELECTED_FEATURE;
 
 function initMap() {
 	// Create the map element
@@ -44,6 +57,11 @@ function initMap() {
         })
       })
     ],
+
+    controls : ol.control.defaults({
+        attribution : false
+    }),
+
     view: new ol.View({
       center: ol.proj.fromLonLat([18.00, 59.00]),
       zoom: 7
@@ -57,13 +75,15 @@ function initMap() {
   
 	// Add relevent controls
 	addMousePosition(map);
+
+
   map.on('singleclick', function(evt) {
     var feature = map.forEachFeatureAtPixel(evt.pixel, function(feature, layer) {
         //you can add a condition on layer to restrict the listener
         return feature;
         });
     if (feature) {
-      console.log(feature);
+      handlePointClicked(feature);
         //here you can add you code to display the coordinates or whatever you want to do
     }
   });
@@ -116,76 +136,56 @@ function initLayer(kkod, color) {
       // Attributes
       feature.set('kategori', res[i].kategori);
       feature.set('rating', res[i].rating);
+      feature.set('n_rev', res[i].n_rev);
       feature.set('kkod', res[i].kkod);
       // add the feature to the source
       vectorSource.addFeature(feature);
     }
     map.addLayer(vectorLayer);
     LAYER_LIST[layerID] = vectorLayer;
-    console.log(LAYER_LIST);
-
   });
 }
 
 function initUI() {
   initFilterDiv();
-  var filterContainter = document.getElementById("filterContainer");
-  var optionsContainter = document.getElementById("optionsContainer");
-  var filterButton = document.createElement("button");
-  filterButton.innerHTML = "X";
-  filterButton.setAttribute("id", "filterButton");
-  optionsContainter.appendChild(filterButton);
+  initFeatureInfoContainer();
+}
 
-  filterButton.addEventListener ("click", function() {
-    if (filterContainer.style.display == 'none') {
-      filterContainer.style.display = 'block';
-    } else {
-      filterContainer.style.display = 'none';
-    }
-    
-  });
+window.onresize = function() {
+  setTimeout( function() { map.updateSize();}, 200);
 }
 
 // ##############################################################
-// ---------------------------- UI ------------------------------
+// ---------------------- Interaction ---------------------------
 // ##############################################################
 
-function initFilterDiv() {
-  var optionsContainter = document.getElementById("optionsContainer");
-  var filterContainer = document.createElement("div");
-  filterContainer.id = "filterContainer";
-  filterContainer.className = "container";
-  optionsContainter.appendChild(filterContainer);
-  filterContainer.style.display = 'none';
-
-  // Create one checkbox for each layer
-  for (i = 0; i < LAYERS.length; i++) {
-    var checkbox = document.createElement('input');
-    checkbox.type = "checkbox";
-    checkbox.name = "name";
-    checkbox.value = "value";
-    checkbox.checked = true;
-    checkbox.id = LAYERS[i].toString();
-
-    // Display or hide layer associated with the checkbox
-    checkbox.addEventListener( 'change', function() {
-      layer = getLayerByID(this.id);
-      if(this.checked) {
-        layer.setVisible(true);
-      } else {
-        layer.setVisible(false);
-      }
-    });
-
-    // Add a label next to the checkbox 
-    var label = document.createElement('label')
-    label.htmlFor = LAYERS[i].toString();
-    label.appendChild(document.createTextNode("id" + LAYERS[i].toString()));
-
-    filterContainer.appendChild(checkbox);
-    filterContainer.appendChild(label);
+function handlePointClicked(feature) {
+  var featureInfoContainer = document.getElementById("featureInfoContainer");
+  CURRENT_SELECTED_FEATURE = feature;
+  
+  if (featureInfoContainer.style.display = 'none') {
+    featureInfoContainer.style.display = 'block';
   }
-  return filterContainer;
+
+  clearRating();
+
+  var heading = featureInfoContainer.childNodes[0];
+  var rating = featureInfoContainer.childNodes[1];
+  // var desc = featureInfoContainer.childNodes[2];
+
+  heading.innerHTML = feature.R.kategori;
+
+  if (feature.R.rating == null) {
+    rating.innerHTML = 'Not rated'
+  } else {
+    rating.innerHTML = (Math.round(feature.R.rating * 10 ) / 10) + '/5 [' + feature.R.n_rev + ']';
+  }
+}
+
+function updateFeatureHTLM(new_rating, new_n) {
+  var featureInfoContainer = document.getElementById("featureInfoContainer");
+  var rating = featureInfoContainer.childNodes[1];
+  rating.innerHTML = (Math.round(new_rating * 10 ) / 10) + '/5 [' + new_n + ']';
 }
 
 // ##############################################################
@@ -203,41 +203,58 @@ function addMousePosition(map) {
   map.addControl(mousePosition);
 }
 
+// ##############################################################
+// ---------------------- Local api -----------------------------
+// ##############################################################
+
 function getLayerByID(id) {
   return LAYER_LIST[id];
-}    
+} 
 
 
 // ##############################################################
 // ---------------------- Database ------------------------------
 // ##############################################################
 
-function getQueryExtent(map) {
-	var extent = map.getView().calculateExtent(map.getSize());
-	console.log(map);
-	console.log(extent);
-	//console.log(map.getLayers());
-	//console.log(map.getSource().getProjection());
-	var markFeature = new ol.Feature({
-  		geometry: new ol.geom.Point(ol.proj.transform([extent[0], extent[1]], 'EPSG:4326',     
-  		'EPSG:3857'), 'Point')
-	});
+function rateFeature(feature, rating) {
+  n = parseInt(feature.R.n_rev);
+  old_rating = feature.R.rating;
 
-	map.getView().setCenter(ol.proj.transform([extent[0], extent[1]], 'EPSG:4326', 'EPSG:3857'));
-	var markFeature = new ol.Feature({
-  		geometry: new ol.geom.Point(ol.proj.transform([extent[2], extent[3]], 'EPSG:4326',     
-  		'EPSG:3857'), 'Point')
-	});
+  new_rating = (old_rating*n + rating)/(n + 1)
+  feature.R.n_rev = n + 1;
+  feature.R.rating = new_rating;
 
-	for (var i = 0; i < extent.length; i++) {
-		console.log(i);
-		var markFeature = new ol.Feature({
-      		geometry: new ol.geom.Point(ol.proj.transform([extent[i].long, extent[i].lat], 'EPSG:4326',     
-      		'EPSG:3857')),
-     		name: '1'
-   		});
-
-	}
-	
-
+  updateFeatureHTLM(new_rating, n + 1)
 }
+
+
+// ##############################################################
+// ---------------------- Not used ------------------------------
+// ##############################################################
+
+// function getQueryExtent(map) {
+// 	var extent = map.getView().calculateExtent(map.getSize());
+// 	console.log(map);
+// 	console.log(extent);
+
+// 	var markFeature = new ol.Feature({
+//   		geometry: new ol.geom.Point(ol.proj.transform([extent[0], extent[1]], 'EPSG:4326',     
+//   		'EPSG:3857'), 'Point')
+// 	});
+
+// 	map.getView().setCenter(ol.proj.transform([extent[0], extent[1]], 'EPSG:4326', 'EPSG:3857'));
+// 	var markFeature = new ol.Feature({
+//   		geometry: new ol.geom.Point(ol.proj.transform([extent[2], extent[3]], 'EPSG:4326',     
+//   		'EPSG:3857'), 'Point')
+// 	});
+
+// 	for (var i = 0; i < extent.length; i++) {
+// 		console.log(i);
+// 		var markFeature = new ol.Feature({
+//       		geometry: new ol.geom.Point(ol.proj.transform([extent[i].long, extent[i].lat], 'EPSG:4326',     
+//       		'EPSG:3857')),
+//      		name: '1'
+//    		});
+
+// 	}
+// }

@@ -12,12 +12,16 @@
 /*##############################################################*/
 
 #map {
-	height: 100%;
 	width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
 }
 
 #mouseCoordinates {
-	/*background-color: rgba(255, 255, 255, 0.5);*/
 	border-radius: 5px;
 	position: absolute;
 	top: 10px;
@@ -31,15 +35,30 @@
 	position: absolute;
 	top: 150px;
 	left: 10px;
-	height: 110px;
-	width: 20px;
 	z-index: 2;
 }
 
 #filterContainer {
-	position: relative;
-    left: 30px;
-	height: 100px;
-	width: 70px;
+	position: absolute;
+    top: 150px;
+    left: 50px;
+	width: 160px;
 	z-index: 3;
+}
+
+#featureInfoContainer {
+	position: absolute;
+    bottom: 10px;
+    right: 10px;
+    width: 300px;
+	z-index: 3;
+}
+
+@media only screen and (max-width: 500px) {
+    #featureInfoContainer {
+    	width: 96%;
+    	margin: 0 2%;
+    	right: 0;
+    	bottom: 5px;
+    }
 }
