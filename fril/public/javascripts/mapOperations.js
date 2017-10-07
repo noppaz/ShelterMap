@@ -14,6 +14,14 @@ var LAYERS = [
   9935,             // Stugby
   ];
 
+RATINGS = [
+  '<i class="fa fa-paw" aria-hidden="true"></i>',
+  '<i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"></i>',
+  '<i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"></i>',
+  '<i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"></i>',
+  '<i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"></i>'
+]
+
 var LAYER_NAMES = [
   'Kåta',
   'Vindskydd',
@@ -26,17 +34,19 @@ var LAYER_NAMES = [
   'Stugby'
   ];
 
-var LAYER_COLORS = [
-'255, 255, 255',    // Kåta
-'255, 0, 255',      // Vindskydd
-'45, 255, 0',       // Campingplats
-'255, 255, 255',    // Vindskydd, ej i anslutning till Vägkarteleder
-'255, 124, 123',    // Rastplats, ej i anslutning till allmän väg
-'0, 255, 255',      // Fjällstation, hotell, pensionat
-'78, 45, 34',       // Turiststuga, övernattningsstuga
-'12, 255, 0',       // Rastskydd, raststuga
-'56, 0, 255'        // Stugby
+var LAYER_STYLE = [
+STYLE_770,          // Kåta
+STYLE_775,          // Vindskydd
+STYLE_778,          // Campingplats
+STYLE_780,          // Vindskydd, ej i anslutning till Vägkarteleder
+STYLE_788,          // Rastplats, ej i anslutning till allmän väg
+STYLE_9931,         // Fjällstation, hotell, pensionat
+STYLE_9932,         // Turiststuga, övernattningsstuga
+STYLE_9934,         // Rastskydd, raststuga
+STYLE_9935          // Stugby
 ];
+
+
 
 var LAYER_LIST = [];
 
@@ -70,7 +80,7 @@ function initMap() {
 
   // Load data
   for (i = 0; i < LAYERS.length; i++) {
-    initLayer(LAYERS[i], LAYER_COLORS[i]);
+    initLayer(LAYERS[i], LAYER_STYLE[i]);
   }
   
 	// Add relevent controls
@@ -83,7 +93,7 @@ function initMap() {
         return feature;
         });
     if (feature) {
-      handlePointClicked(feature);
+      handlePointSelected(feature);
         //here you can add you code to display the coordinates or whatever you want to do
     }
   });
@@ -92,7 +102,7 @@ function initMap() {
 	return map;
 }
 
-function initLayer(kkod, color) {
+function initLayer(kkod, style) {
    var request = $.ajax({
         url: "/api/getFeature",
         method: "POST",
@@ -102,26 +112,11 @@ function initLayer(kkod, color) {
 
   request.done(function(res) {
     var vectorSource = new ol.source.Vector({});
-    colorString1 = 'rgba(' + color + ', 0.5)';
-    colorString2 = 'rgba(' + color + ', 0.8)';
-
-    var vectorStyle = new ol.style.Style ({
-      image: new ol.style.Circle({
-        radius: 3,
-        fill: new ol.style.Fill({
-          color: colorString1
-        }),
-        stroke: new ol.style.Stroke({
-          color: colorString2,
-          width: 1
-        })
-      })
-    });
     var layerID = kkod;
 
     var vectorLayer = new ol.layer.Vector({
       source: vectorSource,
-      style: vectorStyle
+      style: style
     });
 
 
@@ -131,9 +126,10 @@ function initLayer(kkod, color) {
       var geometry = new ol.geom.Point(ol.proj.transform(wktGeometry.coordinates, 'EPSG:4326', 'EPSG:3857'));
 
       var feature = new ol.Feature({});
-      //feature.setStyle(vectorStyle);
+      feature.setStyle(style);
       feature.setGeometry(geometry);
       // Attributes
+      feature.set('gid', res[i].gid);
       feature.set('kategori', res[i].kategori);
       feature.set('rating', res[i].rating);
       feature.set('n_rev', res[i].n_rev);
@@ -148,6 +144,7 @@ function initLayer(kkod, color) {
 
 function initUI() {
   initFilterDiv();
+  initSpatialSearchDiv();
   initFeatureInfoContainer();
 }
 
@@ -159,7 +156,25 @@ window.onresize = function() {
 // ---------------------- Interaction ---------------------------
 // ##############################################################
 
-function handlePointClicked(feature) {
+function handlePointSelected(feature) {
+  var selectedStyle = new ol.style.Style ({
+    image: new ol.style.Circle({
+      radius: 7,
+      fill: new ol.style.Fill({
+        color: 'rgba(0, 60, 136, 0.5)'
+      }),
+      stroke: new ol.style.Stroke({
+        color: 'rgba(0, 60, 136, 0.7)',
+        width: 3
+      })
+    })
+  });
+
+  if (CURRENT_SELECTED_FEATURE) {
+    resetFeatureStyle(CURRENT_SELECTED_FEATURE);
+  }
+
+  feature.setStyle(selectedStyle);
   var featureInfoContainer = document.getElementById("featureInfoContainer");
   CURRENT_SELECTED_FEATURE = feature;
   
@@ -167,7 +182,7 @@ function handlePointClicked(feature) {
     featureInfoContainer.style.display = 'block';
   }
 
-  clearRating();
+  clearRatingUI();
 
   var heading = featureInfoContainer.childNodes[0];
   var rating = featureInfoContainer.childNodes[1];
@@ -180,6 +195,12 @@ function handlePointClicked(feature) {
   } else {
     rating.innerHTML = (Math.round(feature.R.rating * 10 ) / 10) + '/5 [' + feature.R.n_rev + ']';
   }
+}
+
+function resetFeatureStyle(feature) {
+  kkod = feature.R.kkod;
+  i = findLayerNumber(kkod);
+  feature.setStyle(LAYER_STYLE[i]);
 }
 
 function updateFeatureHTLM(new_rating, new_n) {
@@ -211,6 +232,13 @@ function getLayerByID(id) {
   return LAYER_LIST[id];
 } 
 
+function findLayerNumber(kkod) {
+  for (i = 0; i < LAYERS.length; i++) {
+    if (LAYERS[i] == kkod) {
+      return i;
+    }
+  }
+}
 
 // ##############################################################
 // ---------------------- Database ------------------------------
@@ -223,8 +251,15 @@ function rateFeature(feature, rating) {
   new_rating = (old_rating*n + rating)/(n + 1)
   feature.R.n_rev = n + 1;
   feature.R.rating = new_rating;
+  console.log(feature);
 
   updateFeatureHTLM(new_rating, n + 1)
+  var request = $.ajax({
+      url: "/api/rateFeature",
+      method: "POST",
+      data: {gid:feature.R.gid, rating:rating},
+      cache: false
+  });
 }
 
 

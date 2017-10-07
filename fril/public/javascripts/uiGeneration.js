@@ -25,6 +25,54 @@ function createCheckbox(id, labelText, checked) {
   return checkboxContainer;
 }
 
+function createDropDown(content, placeholder, id) {
+  var dropDownContainer = document.createElement("div");
+  dropDownContainer.classList.add('dropDownContainer');
+
+  dropDownPlaceHolder = document.createElement('input');
+  dropDownPlaceHolder.readOnly = true;
+  dropDownPlaceHolder.placeholder = placeholder;
+  dropDownPlaceHolder.classList.add('dropDownPlaceHolder');
+  dropDownPlaceHolder.classList.add('text');
+  dropDownPlaceHolder.setAttribute('id', id)
+  dropDownContainer.appendChild(dropDownPlaceHolder);
+
+  var dropDownIcon = document.createElement('div');
+  dropDownIcon.classList.add('dropDownIcon');
+  dropDownContainer.appendChild(dropDownIcon);
+
+  dropDownPlaceHolder.addEventListener('focus', function (event) {
+    dropDownContent.style.display = 'block';
+  });
+
+  dropDownPlaceHolder.addEventListener('blur', function (event) {
+    setTimeout(function() {
+      dropDownContent.style.display = 'none';
+    }, 250);
+  });
+
+  var dropDownContent = document.createElement("div");
+  dropDownContent.classList.add('dropDownContentContainer');
+  dropDownContainer.appendChild(dropDownContent);
+  dropDownContent.style.display = 'none';
+
+  for (i = 0; i < content.length; i++) {
+    var element = document.createElement("div");
+    dropDownContent.appendChild(element);
+    element.classList.add('dropDownElement');
+    element.classList.add('text');
+    element.innerHTML = content[i];
+
+    element.addEventListener('click', function (event) {
+      dp = document.getElementById(id);
+      dp.value = this.innerHTML;
+    });
+
+  }
+
+  return dropDownContainer;
+}
+
 // ##############################################################
 // ------------------ Specific elements -------------------------
 // ##############################################################
@@ -41,7 +89,6 @@ function initFilterDiv() {
 
   // Init button in the options container
   var filterButton = document.createElement("button");
-  filterButton.innerHTML = "X";
   filterButton.setAttribute("id", "filterButton");
   filterButton.classList.add('sideButton');
   optionsContainter.appendChild(filterButton);
@@ -49,6 +96,7 @@ function initFilterDiv() {
   // Hook listener to show/hid filterdiv
   filterButton.addEventListener ("click", function() {
     if (filterContainer.style.display == 'none') {
+      hideSideNavElements();
       filterContainer.style.display = 'block';
     } else {
       filterContainer.style.display = 'none';
@@ -57,6 +105,11 @@ function initFilterDiv() {
 
   // Create one checkbox for each layer
   for (i = 0; i < LAYERS.length; i++) {
+    rowContainer = document.createElement('div');
+    legend = document.createElement('span');
+    legend.style.color = 'rgb(' + LAYER_COLOR[i] + ')';
+    legend.innerHTML = '<i class="fa fa-circle-o" aria-hidden="true"></i>';
+
     checkboxContainer = createCheckbox(LAYERS[i].toString(), LAYER_NAMES[i], true);
     checkbox = checkboxContainer.childNodes[0];
     label = checkboxContainer.childNodes[1];
@@ -75,10 +128,85 @@ function initFilterDiv() {
       }
     });
     
-    filterContainer.appendChild(checkboxContainer);
+    rowContainer.appendChild(legend);
+    rowContainer.appendChild(checkboxContainer);
+    filterContainer.appendChild(rowContainer);
   }
   return filterContainer;
 }
+
+function initSpatialSearchDiv() {
+  // Init div containing the filter
+  var optionsContainter = document.getElementById("optionsContainer");
+  var sideNav = document.getElementById("sideNav");
+  var spatialSearchContainer = document.createElement("div");
+  spatialSearchContainer.id = "spatialSearchContainer";
+  spatialSearchContainer.className = "container text";
+  sideNav.appendChild(spatialSearchContainer);
+  spatialSearchContainer.style.display = 'none';
+
+  // Init button in the options container
+  var spatialSearchButton = document.createElement("button");
+  spatialSearchButton.setAttribute("id", "spatialSearchButton");
+  spatialSearchButton.classList.add('sideButton');
+  optionsContainter.appendChild(spatialSearchButton);
+
+  // Hook listener to show/hid filterdiv
+  spatialSearchButton.addEventListener ("click", function() {
+    if (spatialSearchContainer.style.display == 'none') {
+      hideSideNavElements();
+      spatialSearchContainer.style.display = 'block';
+    } else {
+      spatialSearchContainer.style.display = 'none';
+    }
+  });
+
+  // ############# The 'pop-up' ##############
+
+  // Title container
+  var headingContainer = document.createElement("div");
+  headingContainer.id = "featureInfoHeader";
+  headingContainer.className = "heading";
+  headingContainer.innerHTML = 'Find a feature';
+
+  // Description container
+  var descriptionContainer = document.createElement("div");
+  descriptionContainer.id = "featureInfoDescription";
+  descriptionContainer.className = "paragraph";
+  descriptionContainer.innerHTML = 'Search for a the closest feature from a location matching the criteria given.';
+
+  // Layer filter container
+  var layerFilterContainer = document.createElement("div");
+  layerFilterContainer.id = "layerFilterContainer";
+
+  layerDD = createDropDown(LAYER_NAMES, 'Layer', 'layerDDfilter');
+  layerFilterContainer.appendChild(layerDD);
+
+  ratingDD = createDropDown(RATINGS, 'Rating greater than', 'ratingDDfilter');
+  layerFilterContainer.appendChild(ratingDD);
+
+
+  // Init button in the options container
+  var spatialSearchExecuteButton = document.createElement("button");
+  spatialSearchExecuteButton.setAttribute("id", "spatialSearchExecuteButton");
+  spatialSearchExecuteButton.innerHTML = "Search ";
+  spatialSearchExecuteButton.classList.add('submitButton');
+ 
+  // Hook listener to show/hid filterdiv
+  spatialSearchButton.addEventListener ("click", function() {
+    // if all fields filled in
+      // noahs api query
+      // pan to feature
+  });
+
+
+  spatialSearchContainer.appendChild(headingContainer);
+  spatialSearchContainer.appendChild(descriptionContainer);
+  spatialSearchContainer.appendChild(layerFilterContainer);
+  spatialSearchContainer.appendChild(spatialSearchExecuteButton);  
+}
+
+
 
 function initFeatureInfoContainer() {
   var mapDiv = document.getElementById("map");
@@ -187,12 +315,24 @@ function generateRateField(parent) {
       }
     });
   }
-
 }
 
-function clearRating() {
+// ##############################################################
+// -------------------Suport funcs ------------------------------
+// ##############################################################
+
+function clearRatingUI() {
   for (i = 0; i < 5; i++) {
     var e = document.getElementById('ratingElement' + i);
     e.classList.remove('selectTarget');
+  }
+}
+
+function hideSideNavElements() {
+  var sideNavElements = sideNav.childNodes;
+  for (i = 0; i < sideNavElements.length; i++) {
+    if (sideNavElements[i].nodeType != 3 && sideNavElements[i].id != 'optionsContainer') {
+      sideNavElements[i].style.display = 'none';
+    }
   }
 }

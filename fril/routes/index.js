@@ -54,6 +54,12 @@ router.post('/api/getFeature', function(req, res) {
 	    .catch(e => console.error(e.stack));
 });
 
+router.post('/api/rateFeature', function(req, res) {
+    var data = {gid: req.body.gid, rating: req.body.rating};
+    var queryString = "INSERT INTO reviews (gid, user_name, grade) VALUES ("+data.gid+", 'noname', "+data.rating+");";
+    apiClient.query(queryString);
+});
+
 // router.post('/api/getClosestFeature', function(req, res) {
 // 	var data = {coordlon: req.body.coordlon, coordlat: req.body.coordlat, kkods: req.body.kkods, grade: req.body.grade, nullflag: req.body.nullflag};
 // 	var nullflagOption = "";

@@ -38,6 +38,7 @@ body {
 .submitButton {
 	float: right;
 	height: 25px;
+	min-width: 36px;
 	border: none;
 	border-radius: 3px;
 	background-color: rgba(0, 60, 136, 0.5);
@@ -57,6 +58,7 @@ body {
 	border-radius: 3px;
 	background-color: rgba(0, 60, 136, 0.5);
 	padding: 2px;
+	margin: 1px;
 	color: rgb(255, 255, 255);
 	outline: none;
 }
@@ -135,6 +137,62 @@ body {
 }
 
 /*##############################################################*/
+/*------------------- Dropdown ---------------------------------*/
+/*##############################################################*/
+
+.dropDownContainer {
+	height: 25px;
+
+	margin: 5px 2px;
+}
+
+.dropDownContentContainer {
+	position: relative;
+	z-index: 4;
+	width: 95%;
+	background-color: rgba(255, 255, 255, 1);
+	border-radius: 5px;
+}
+
+.dropDownPlaceHolder {
+	background-color: rgba(255, 255, 255, 0.5);
+	color: rgba(0, 60, 136, 0.7);
+	padding: 2px;
+	outline: none;
+	border: none;
+	cursor: pointer;
+	width: 95%;
+	box-sizing: border-box;
+}
+
+.dropDownIcon {
+	position: relative;
+    right: 18px;
+    float: right;
+	z-index: 3;
+}
+
+.dropDownIcon:before {
+	font-size: 16px;
+	font-family: FontAwesome;
+    content: "\f0dd";
+    color: rgba(0, 60, 136, 0.7)
+}
+
+.dropDownElement {
+	font-size: 12px;
+	width: 100%;
+	padding: 2px;
+	box-sizing: border-box;
+}
+
+.dropDownElement:hover {
+	background-color: rgba(0, 60, 136, 0.05);
+	color: rgba(0, 60, 136, 0.7);
+	cursor: pointer;
+}
+
+/*##############################################################*/
 /*------------------- Containers -------------------------------*/
 /*##############################################################*/
 
@@ -148,4 +206,5 @@ body {
 .checkboxContainer {
 	width: 100%;
 	padding: 5px;
+	display: inline;
 }
