@@ -57,7 +57,7 @@
 	padding: 5px;
 }
 
-#featureInfoContainer {
+#featureInfoContainer, #polygonInfoContainer {
 	position: absolute;
     bottom: 10px;
     right: 10px;
