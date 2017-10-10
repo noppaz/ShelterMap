@@ -1,17 +1,245 @@
 body {
   margin: 0;
+  min-height: 100%;
+  display: block;
 }
 
-.container {
-	background-color: rgba(255, 255, 255, 0.5);
-	border-radius: 5px;
-}
+/*##############################################################*/
+/*------------------- General ----------------------------------*/
+/*##############################################################*/
 
 .text {
 	font-family: 'Roboto', sans-serif;
 }
 
 .faded {
-	background-color: rgba(255, 255, 255, 0.5);
+	background-color: rgba(255, 255, 255, 0.4);
 	color: rgb(128, 128, 128);
+}
+
+.heading {
+	font-size: 16px;
+	font-weight: 600;
+	margin: 5px;
+	color: rgba(0, 60, 136, 0.7);
+}
+
+.paragraph {
+	font-size: 12px;
+	font-style: italic;
+	margin: 5px;
+	color: rgba(40, 50, 60, 0.9);
+}
+
+/*##############################################################*/
+/*------------------- Buttons ----------------------------------*/
+/*##############################################################*/
+
+.submitButton {
+	float: right;
+	height: 25px;
+	min-width: 36px;
+	border: none;
+	border-radius: 3px;
+	background-color: rgba(0, 60, 136, 0.5);
+	padding: 5px 8px;
+	color: rgb(255, 255, 255);
+	outline: none;
+	margin: 10px;
+}
+
+.submitButton:hover {
+	background-color: rgba(0, 60, 136, 0.7);
+}
+
+.sideButton, .smallButton {
+	width: 25px;
+	height: 25px;
+	border: none;
+	border-radius: 3px;
+	background-color: rgba(0, 60, 136, 0.5);
+	padding: 2px;
+	margin: 1px;
+	color: rgb(255, 255, 255);
+	outline: none;
+}
+
+.sideButton:hover, .smallButton:hover {
+	background-color: rgba(0, 60, 136, 0.7);
+}
+
+.smallButton {
+	margin: 5px;
+}
+
+.closeButton {
+	position: absolute;
+    top: 0px;
+    right: 0px;
+    margin: 6px;
+    width: 18px;
+    height: 18px;
+    border: none;
+    border-radius: 9px;
+    background-color: rgba(0, 60, 136, 0.5);
+    padding-left: 6px;
+    color: rgb(255, 255, 255);
+    outline: none;
+}
+
+.closeButton:hover {
+	background-color: rgba(0, 60, 136, 0.7);
+}
+
+.ratingSelect {
+	width: 25px;
+    height: 25px;
+    padding: 3px;
+    margin: 2px;
+    background-color: rgba(255, 255, 255, 0);
+    border: none;
+    border-radius: 2px;
+    outline: none;
+}
+
+.ratingSelect:before {
+	font-size: 20px;
+	font-family: FontAwesome;
+    content: "\f1b0";
+}
+
+
+.ratingSelect.hoverTarget {
+	color: rgba(0, 60, 136, 0.6);
+}
+
+.ratingSelect.selectTarget {
+	color: rgba(0, 60, 136, 0.8);
+}
+
+.ratingSelect.selectTarget:hover {
+	color: rgba(0, 60, 136, 0.4)
+}
+
+
+/*##############################################################*/
+/*------------------- Inputs -----------------------------------*/
+/*##############################################################*/
+
+.inputLabel {
+	color: rgba(0, 60, 136, 0.5);
+	font-weight: 600;
+}
+
+.inputLabel:hover {
+	color: rgba(0, 60, 136, 0.7);
+}
+
+.inputLabel.unChecked {
+	padding-top: 2px;
+	padding-bottom: 2px;
+	color: rgba(79, 92, 79, 0.54);
+}
+
+.inputLabel.unChecked:hover {
+	color: rgba(0, 60, 136, 0.25);
+}
+
+.textInput {
+	border: none;
+	border-bottom: 1px solid;
+	border-radius: 5px 5px 0 0;
+	border-color: rgba(0, 60, 136, 0.3);
+	background-color: rgba(255, 255, 255, 0.5);
+	color: rgba(0, 60, 136, 0.7);
+	padding: 2px;
+	outline: none;
+	box-sizing: border-box;
+}
+
+.textInput.valid {
+	border-color: rgba(0, 255, 136, 0.7);
+	background-color: rgba(0, 255, 136, 0.1);
+}
+
+.textInput.invalid {
+	border-color: rgba(255, 60, 0, 0.7);
+	background-color: rgba(255, 60, 0, 0.1);
+}
+
+
+
+/*##############################################################*/
+/*------------------- Dropdown ---------------------------------*/
+/*##############################################################*/
+
+.dropDownContainer {
+	height: 25px;
+
+	margin: 5px 2px;
+}
+
+.dropDownContentContainer {
+	position: relative;
+	z-index: 4;
+	width: 95%;
+	background-color: rgba(255, 255, 255, 1);
+	border-radius: 5px;
+}
+
+.dropDownPlaceHolder {
+	background-color: rgba(255, 255, 255, 0.5);
+	color: rgba(0, 60, 136, 0.7);
+	padding: 2px;
+	outline: none;
+	border: none;
+	cursor: pointer;
+	width: 95%;
+	box-sizing: border-box;
+	/*border-bottom: 1px solid;
+	border-color: rgba(0, 60, 136, 0.7);*/
+}
+
+.dropDownIcon {
+	position: relative;
+    right: 18px;
+    float: right;
+	z-index: 3;
+}
+
+.dropDownIcon:before {
+	font-size: 16px;
+	font-family: FontAwesome;
+    content: "\f0dd";
+    color: rgba(0, 60, 136, 0.7)
+}
+
+.dropDownElement {
+	font-size: 12px;
+	width: 100%;
+	padding: 2px;
+	box-sizing: border-box;
+}
+
+.dropDownElement:hover {
+	background-color: rgba(0, 60, 136, 0.05);
+	color: rgba(0, 60, 136, 0.7);
+	cursor: pointer;
+}
+
+/*##############################################################*/
+/*------------------- Containers -------------------------------*/
+/*##############################################################*/
+
+.container {
+	background-color: rgba(255, 255, 255, 0.7);
+	border-radius: 5px;
+	padding: 2px;
+	box-sizing: border-box;
+}
+
+.checkboxContainer {
+	width: 100%;
+	padding: 5px;
+	display: inline;
 }

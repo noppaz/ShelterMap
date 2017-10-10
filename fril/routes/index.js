@@ -37,7 +37,7 @@ router.post('/api/getFeature', function(req, res) {
     var queryString = "SELECT gid, kkod, kategori, ROUND(AVG(grade), 2) AS rating, " +
 						"CASE WHEN AVG(grade) IS NULL THEN 0 " +
 							 "ELSE COUNT(gid) " +
-							 "END AS no_rev, " +
+							 "END AS n_rev, " +
 						"ST_AsText(geom) AS geometry " +
 						"FROM (SELECT sv_skydd.gid, kkod, kategori, geom, grade FROM sv_skydd " +
 						"LEFT JOIN reviews ON sv_skydd.gid = reviews.gid WHERE kkod = " + data.kkod +
@@ -45,6 +45,8 @@ router.post('/api/getFeature', function(req, res) {
 
     apiClient.query(queryString)
 	    .then(function(results) {
+	    	//console.log(results.rows);
+
 	        if (results.rows.length == 0) res.end("incorrect");
 	        else res.json(results.rows);
 
@@ -73,8 +75,31 @@ router.post('/api/getPolygons', function(req, res) {
 
 router.post('/api/rateFeature', function(req, res) {
     var data = {gid: req.body.gid, rating: req.body.rating};
-
     var queryString = "INSERT INTO reviews (gid, user_name, grade) VALUES ("+data.gid+", 'noname', "+data.rating+");";
-
     apiClient.query(queryString);
+});
+
+router.post('/api/getClosestFeature', function(req, res) {
+	var data = {coordlon: req.body.coordlon, coordlat: req.body.coordlat, kkod: req.body.kkod, grade: req.body.grade};
+
+	console.log('in api');
+    var queryString = "SELECT gid, kkod, kategori, avg_grade AS rating, ST_AsText(geom) AS geometry, ST_Distance(geom, ST_GeomFromText('POINT(" + data.coordlon + " " + data.coordlat + ")',4326), false)/1000 AS dist_km " +  
+						"FROM (SELECT gid, kkod, kategori, ROUND(AVG(grade), 2) AS avg_grade, geom FROM " +
+						      	"(SELECT sv_skydd.gid, kkod, kategori, geom, grade FROM sv_skydd " +
+								"LEFT JOIN reviews ON sv_skydd.gid = reviews.gid WHERE kkod=" + data.kkod +") AS jn " +
+						      "GROUP BY gid, kkod, kategori, geom) AS x " + 
+						"WHERE avg_grade >= " + data.grade +
+						" ORDER BY dist_km ASC LIMIT 1;";
+
+	console.log(queryString);
+
+    apiClient.query(queryString)
+        .then(function(results) {
+            console.log(results.rows);
+
+            if (results.rows.length == 0) res.end("incorrect");
+            else res.json(results.rows);
+
+        })
+        .catch(e => console.error(e.stack));
 });
