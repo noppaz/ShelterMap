@@ -28,6 +28,31 @@ var LAYER_COLORS = [
 
 var LAYER_LIST = [];
 
+var POLYGON_LIST = [];
+
+var LAN_LIST = [
+'Skåne Län',
+'Blekinge Län',
+'Kalmar Län',
+'Kronobergs Län',
+'Hallands Län',
+'Gotlands Län',
+'Jönköpings Län',
+'Östergötlands Län',
+'Västra Götalands Län',
+'Södermanlands Län',
+'Örebro Län',
+'Värmlands Län',
+'Stockholms Län',
+'Uppsala Län',
+'Västmanlands Län',
+'Dalarnas Län',
+'Gävleborgs Län',
+'Västernorrlands Län',
+'Jämtlands Län',
+'Västerbottens Län',
+'Norrbottens Län'];
+
 // ##############################################################
 // ---------------------- Initialize stuff ----------------------
 // ##############################################################
@@ -45,14 +70,29 @@ function initMap() {
       })
     ],
     view: new ol.View({
-      center: ol.proj.fromLonLat([18.00, 59.00]),
-      zoom: 7
+      center: ol.proj.fromLonLat([18.00, 63.00]),
+      zoom: 5
     })
   });
 
   // Load data
   for (i = 0; i < LAYERS.length; i++) {
     initLayer(LAYERS[i], LAYER_COLORS[i]);
+  }
+  // Load polygon data
+  initPolygons(1, ''); // Loads nationalparker
+
+  // Create naturreservat layer and store it
+  var vectorLayer = new ol.layer.Vector({
+    source: new ol.source.Vector({})//,
+    // style: vectorStyle
+  });
+  map.addLayer(vectorLayer);
+  POLYGON_LIST[0] = vectorLayer;
+
+  for (i = 0; i < LAN_LIST.length; i++) {
+    // Loads naturreservat one län at a time
+    initPolygons(0, LAN_LIST[i]);
   }
   
 	// Add relevent controls
@@ -70,6 +110,7 @@ function initMap() {
 
 	// Retrun the map
 	return map;
+  console.log(POLYGON_LIST);
 }
 
 function initLayer(kkod, color) {
@@ -104,10 +145,10 @@ function initLayer(kkod, color) {
       style: vectorStyle
     });
 
-
     for (i = 0; i < res.length; i++) {
       // Location/geometry
       var wktGeometry = Terraformer.WKT.parse(res[i].geometry);
+      // console.log(wktGeometry.coordinates);
       var geometry = new ol.geom.Point(ol.proj.transform(wktGeometry.coordinates, 'EPSG:4326', 'EPSG:3857'));
 
       var feature = new ol.Feature({});
@@ -122,8 +163,56 @@ function initLayer(kkod, color) {
     }
     map.addLayer(vectorLayer);
     LAYER_LIST[layerID] = vectorLayer;
-    console.log(LAYER_LIST);
+    // console.log(LAYER_LIST);
 
+  });
+}
+
+function initPolygons(type, lan, ) {
+  var request = $.ajax({
+        url: "/api/getPolygons",
+        method: "POST",
+        data: {type:type, lan:lan},
+        cache: false
+    });
+
+  request.done(function(res) {
+    var vectorSource;
+    if (type == 0) {
+      vectorSource = POLYGON_LIST[0].getSource();
+    } else {
+      vectorSource = new ol.source.Vector({});
+
+      var vectorLayer = new ol.layer.Vector({
+        source: vectorSource//,
+        // style: vectorStyle
+      });
+
+      map.addLayer(vectorLayer);
+      POLYGON_LIST[1] = vectorLayer;
+    }
+
+    var resultRow;
+    for (i = 0; i < res.length; i++) {
+      resultRow = res[i];
+
+      var coordinates = formatPolyCoords(resultRow.geometry);
+      var geometry = new ol.geom.Polygon([coordinates]);
+      geometry.transform('EPSG:4326', 'EPSG:3857');
+
+      var feature = new ol.Feature({});
+      feature.setGeometry(geometry);
+
+      // Attributes
+      feature.setId(resultRow.nvrid);
+      feature.set('gid', resultRow.gid);
+      feature.set('namn', resultRow.namn);
+      feature.set('skyddstyp', resultRow.skyddstyp);
+      feature.set('lan', resultRow.lan);
+      feature.set('kommun', resultRow.kommun);
+
+      vectorSource.addFeature(feature);
+    }
   });
 }
 
@@ -144,6 +233,26 @@ function initUI() {
     }
     
   });
+}
+
+function formatPolyCoords (wktString) {
+  // Formats WKT coordinates from database to desired format with projection for rendering
+  // console.log(wktString);
+  var coordString = wktString.substring(9, wktString.indexOf(")"));
+  var coordString2 = coordString.replace(/ /g, ',');
+  // console.log(coordString2);
+  var coordinates = coordString2.split(',');
+
+
+  var coords2 = [];
+  // var projectedPair;
+  for (j = 0; j < coordinates.length; j += 2) {
+    coords2.push([Number(coordinates[j]), Number(coordinates[j+1])]);
+  }
+  // console.log(coords2);
+
+  // return coordsProjected;
+  return coords2;
 }
 
 // ##############################################################
