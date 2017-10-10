@@ -45,8 +45,27 @@ router.post('/api/getFeature', function(req, res) {
 
     apiClient.query(queryString)
 	    .then(function(results) {
-	        //console.log(results.rows);
+	    	//console.log(results.rows);
 
+	        if (results.rows.length == 0) res.end("incorrect");
+	        else res.json(results.rows);
+
+	    })
+	    .catch(e => console.error(e.stack));
+});
+
+router.post('/api/getPolygons', function(req, res) {
+    var data = {type: req.body.type, lan: req.body.lan};
+	var queryAddition = '';
+	var types = ['Naturreservat', 'Nationalpark'];
+
+	if (data.type == 0) queryAddition = " AND lan = '" + data.lan + "'";
+
+	var queryString = "SELECT gid, nvrid, namn, skyddstyp, lan, kommun, geom_text AS geometry " +
+	    				"FROM naturskydd_polygon WHERE skyddstyp = '" + types[data.type] + "'" + queryAddition;
+
+    apiClient.query(queryString)
+	    .then(function(results) {
 	        if (results.rows.length == 0) res.end("incorrect");
 	        else res.json(results.rows);
 
@@ -84,4 +103,3 @@ router.post('/api/getClosestFeature', function(req, res) {
         })
         .catch(e => console.error(e.stack));
 });
-
