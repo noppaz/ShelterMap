@@ -139,18 +139,15 @@ function initMap() {
 
   map.on('singleclick', function(evt) {
     var feature = map.forEachFeatureAtPixel(evt.pixel, function(feature, layer) {
-        //you can add a condition on layer to restrict the listener
         return feature;
         });
     if (feature) {
-      handlePointSelected(feature, false);
-        //here you can add you code to display the coordinates or whatever you want to do
+      if (feature.getGeometry().A.length < 3) handlePointSelected(feature, false);
+      else handlePolygonSelected(feature);
     }
   });
 
-  //initGeoLocation();
-
-	// Retrun the map
+	// Return the map
 	return map;
   console.log(POLYGON_LIST);
 }
@@ -250,6 +247,7 @@ function initUI() {
   initPolygonFilterDiv();
   initSpatialSearchDiv();
   initFeatureInfoContainer();
+  initPolygonInfoContainer();
 }
 
 function initGeoLocation() {
@@ -335,8 +333,13 @@ function handlePointSelected(feature, centerOn) {
     })
   });
 
+
   if (CURRENT_SELECTED_FEATURE) {
-    resetFeatureStyle(CURRENT_SELECTED_FEATURE);
+    if (CURRENT_SELECTED_FEATURE.getGeometry().A.length < 3) {
+      resetFeatureStyle(CURRENT_SELECTED_FEATURE);
+    } else {
+      resetFeatureStylePolygon(CURRENT_SELECTED_FEATURE);
+    }  
   }
 
   feature.setStyle(selectedStyle);
@@ -348,8 +351,11 @@ function handlePointSelected(feature, centerOn) {
     map.getView().setZoom(11);
   }
   
-  if (featureInfoContainer.style.display = 'none') {
+  if (featureInfoContainer.style.display == 'none') {
+    hideInfoBoxElements();
     featureInfoContainer.style.display = 'block';
+  } else {
+    featureInfoContainer.style.display = 'none';
   }
 
   clearRatingUI();
@@ -367,10 +373,70 @@ function handlePointSelected(feature, centerOn) {
   }
 }
 
+function handlePolygonSelected(feature) {
+  console.log("POLYGON SELECTED");
+  var selectedStyle = new ol.style.Style ({
+    image: new ol.style.Circle({
+      radius: 7,
+      fill: new ol.style.Fill({
+        color: 'rgba(0, 60, 136, 0.5)'
+      }),
+      stroke: new ol.style.Stroke({
+        color: 'rgba(0, 60, 136, 0.7)',
+        width: 3
+      })
+    })
+  });
+
+  if (CURRENT_SELECTED_FEATURE) {
+    if (CURRENT_SELECTED_FEATURE.getGeometry().A.length < 3) {
+      resetFeatureStyle(CURRENT_SELECTED_FEATURE);
+    } else {
+      resetFeatureStylePolygon(CURRENT_SELECTED_FEATURE);
+    }  
+  }
+
+  feature.setStyle(selectedStyle);
+  var polygonInfoContainer = document.getElementById("polygonInfoContainer");
+  CURRENT_SELECTED_FEATURE = feature;
+
+  // if (centerOn) {
+  //   map.getView().setCenter(feature.getGeometry().getCoordinates());
+  //   map.getView().setZoom(11);
+  // }
+
+  if (polygonInfoContainer.style.display == 'none') {
+    hideInfoBoxElements();
+    polygonInfoContainer.style.display = 'block';
+  }
+
+  // clearRatingUI();
+
+  var heading = polygonInfoContainer.childNodes[0];
+  var type = polygonInfoContainer.childNodes[1];
+  var desc = polygonInfoContainer.childNodes[2];
+
+  heading.innerHTML = feature.R.namn;
+  type.innerHTML = feature.R.skyddstyp;
+  console.log(feature.R.skyddstyp);
+
+  // if (feature.R.rating == null) {
+  //   rating.innerHTML = 'Not rated'
+  // } else {
+  //   rating.innerHTML = (Math.round(feature.R.rating * 10 ) / 10) + '/5 [' + feature.R.n_rev + ']';
+  // }
+}
+
 function resetFeatureStyle(feature) {
   kkod = feature.R.kkod;
   i = findLayerNumber(kkod);
   feature.setStyle(LAYER_STYLE[i]);
+}
+
+function resetFeatureStylePolygon(feature) {
+  // kkod = feature.R.kkod;
+  // i = findLayerNumber(kkod);
+  // feature.setStyle(LAYER_STYLE[i]);
 }
 
 function updateFeatureHTLM(new_rating, new_n) {

@@ -362,13 +362,14 @@ function initSpatialSearchDiv() {
 
 
 function initFeatureInfoContainer() {
-  var mapDiv = document.getElementById("map");
-  
   // Main container
   var featureInfoContainer = document.createElement("div");
   featureInfoContainer.id = "featureInfoContainer";
   featureInfoContainer.className = "container text";
   featureInfoContainer.style.display = 'none';
+
+  var infoBox = document.getElementById("infoBox");
+  infoBox.appendChild(featureInfoContainer);
 
   // Title container
   var headingContainer = document.createElement("div");
@@ -432,8 +433,81 @@ function initFeatureInfoContainer() {
   
   // Append to DOM
   featureInfoContainer.appendChild(rateButton);
-  mapDiv.appendChild(featureInfoContainer);
 
+}
+
+function initPolygonInfoContainer() {
+  // Main container
+  var polygonInfoContainer = document.createElement("div");
+  polygonInfoContainer.id = "polygonInfoContainer";
+  polygonInfoContainer.className = "container text";
+  polygonInfoContainer.style.display = 'none';
+
+  var infoBox = document.getElementById("infoBox");
+  infoBox.appendChild(polygonInfoContainer);
+
+  // Title container
+  var headingContainer = document.createElement("div");
+  headingContainer.id = "polygonInfoHeader";
+  headingContainer.className = "heading";
+  headingContainer.innerHTML = 'Heading';
+
+  // Type container
+  var typeContainer = document.createElement("div");
+  typeContainer.id = "polygonInfoType";
+  typeContainer.className = "heading";
+  typeContainer.innerHTML = 'Type';
+
+  // Description container
+  var descriptionContainer = document.createElement("div");
+  descriptionContainer.id = "featureInfoDescription";
+  descriptionContainer.className = "paragraph";
+  descriptionContainer.innerHTML = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas sollicitudin justo ipsum, id dignissim arcu tempus non. In volutpat rutrum ante ut posuere. Aliquam pretium ultricies semper. Nullam lacinia est ac dui ornare, sed tempus nulla fringilla. In ac lorem dui.';
+
+  // Close button
+  var closeButton = document.createElement("button");
+  closeButton.innerHTML = "x";
+  closeButton.classList.add('closeButton');
+
+  // Hook listener to show/hide
+  closeButton.addEventListener ("click", function() {
+    if (polygonInfoContainer.style.display == 'none') {
+      polygonInfoContainer.style.display = 'block';
+    } else {
+      polygonInfoContainer.style.display = 'none';
+    }
+  });
+
+  polygonInfoContainer.appendChild(headingContainer);
+  polygonInfoContainer.appendChild(typeContainer);
+  polygonInfoContainer.appendChild(descriptionContainer);
+  polygonInfoContainer.appendChild(closeButton);
+
+  // generateRateField(polygonInfoContainer);
+
+  // Rate submit button
+  // var rateButton = document.createElement("button");
+  // rateButton.innerHTML = "Rate";
+  // rateButton.classList.add('submitButton');
+
+  // rateButton.addEventListener ("click", function() {
+  //   var rating = 0;
+  //   for (i = 0; i < 5; i++) {
+  //     var e = document.getElementById('ratingElement' + i);
+  //     if (e.classList.contains('selectTarget')) {
+  //       rating += 1;
+  //     } else {
+  //       break;
+  //     }
+  //   }
+  //   if (rating >= 1) {
+  //     rateFeature(CURRENT_SELECTED_FEATURE, rating);
+  //     clearRating();
+  //   }
+  // });
+  
+  // Append to DOM
+  // featureInfoContainer.appendChild(rateButton);
 }
 
 function generateRateField(parent) {
@@ -482,10 +556,23 @@ function clearRatingUI() {
 }
 
 function hideSideNavElements() {
+  var sideNav = document.getElementById("sideNav");
   var sideNavElements = sideNav.childNodes;
+  console.log(sideNavElements);
   for (i = 0; i < sideNavElements.length; i++) {
     if (sideNavElements[i].nodeType != 3 && sideNavElements[i].id != 'optionsContainer') {
       sideNavElements[i].style.display = 'none';
+    }
+  }
+}
+
+function hideInfoBoxElements() {
+  var infoBox = document.getElementById("infoBox");
+  var infoBoxElements = infoBox.childNodes;
+  console.log(infoBoxElements);
+  for (i = 0; i < infoBoxElements.length; i++) {
+    if (infoBoxElements[i].nodeType != 3) {
+      infoBoxElements[i].style.display = 'none';
     }
   }
 }
