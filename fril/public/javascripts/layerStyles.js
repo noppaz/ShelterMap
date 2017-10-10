@@ -32,120 +32,19 @@ var LAYER_ALPHA = [
 ', 0.7)'
 ];
 
-
-var STYLE_770 = new ol.style.Style ({
-  image: new ol.style.Circle({
-    radius: LAYER_SYMBOL_SIZE[0][0],
-    fill: new ol.style.Fill({
-      color: 'rgba(' + LAYER_COLOR[0] + LAYER_ALPHA[0]
-    }),
-    stroke: new ol.style.Stroke({
-      color: 'rgba(' + LAYER_COLOR[0] + LAYER_ALPHA[1],
-      width: LAYER_SYMBOL_SIZE[0][1]
+for (i = 0; i < LAYER_COLOR.length; i++) {
+  var style = new ol.style.Style ({
+    image: new ol.style.Circle({
+      radius: LAYER_SYMBOL_SIZE[i][0],
+      fill: new ol.style.Fill({
+        color: 'rgba(' + LAYER_COLOR[i] + LAYER_ALPHA[0]
+      }),
+      stroke: new ol.style.Stroke({
+        color: 'rgba(' + LAYER_COLOR[i] + LAYER_ALPHA[1],
+        width: LAYER_SYMBOL_SIZE[i][1]
+      })
     })
-  })
-});
+  });
 
-var STYLE_775 = new ol.style.Style ({
-  image: new ol.style.Circle({
-    radius: LAYER_SYMBOL_SIZE[1][0],
-    fill: new ol.style.Fill({
-      color: 'rgba(' + LAYER_COLOR[1] + LAYER_ALPHA[0]
-    }),
-    stroke: new ol.style.Stroke({
-      color: 'rgba(' + LAYER_COLOR[1] + LAYER_ALPHA[1],
-      width: LAYER_SYMBOL_SIZE[1][1]
-    })
-  })
-});
-
-var STYLE_778 = new ol.style.Style ({
-  image: new ol.style.Circle({
-    radius: LAYER_SYMBOL_SIZE[2][0],
-    fill: new ol.style.Fill({
-      color: 'rgba(' + LAYER_COLOR[2] + LAYER_ALPHA[0]
-    }),
-    stroke: new ol.style.Stroke({
-      color: 'rgba(' + LAYER_COLOR[2] + LAYER_ALPHA[1],
-      width: LAYER_SYMBOL_SIZE[2][1]
-    })
-  })
-});
-
-var STYLE_780 = new ol.style.Style ({
-  image: new ol.style.Circle({
-    radius: LAYER_SYMBOL_SIZE[3][0],
-    fill: new ol.style.Fill({
-      color: 'rgba(' + LAYER_COLOR[3] + LAYER_ALPHA[0]
-    }),
-    stroke: new ol.style.Stroke({
-      color: 'rgba(' + LAYER_COLOR[3] + LAYER_ALPHA[1],
-      width: LAYER_SYMBOL_SIZE[3][1]
-    })
-  })
-});
-
-var STYLE_788 = new ol.style.Style ({
-  image: new ol.style.Circle({
-    radius: LAYER_SYMBOL_SIZE[4][0],
-    fill: new ol.style.Fill({
-      color: 'rgba(' + LAYER_COLOR[4] + LAYER_ALPHA[0]
-    }),
-    stroke: new ol.style.Stroke({
-      color: 'rgba(' + LAYER_COLOR[4] + LAYER_ALPHA[1],
-      width: LAYER_SYMBOL_SIZE[4][1]
-    })
-  })
-});
-
-var STYLE_9931 = new ol.style.Style ({
-  image: new ol.style.Circle({
-    radius: LAYER_SYMBOL_SIZE[5][0],
-    fill: new ol.style.Fill({
-      color: 'rgba(' + LAYER_COLOR[5] + LAYER_ALPHA[0]
-    }),
-    stroke: new ol.style.Stroke({
-      color: 'rgba(' + LAYER_COLOR[5] + LAYER_ALPHA[1],
-      width: LAYER_SYMBOL_SIZE[5][1]
-    })
-  })
-});
-
-var STYLE_9932 = new ol.style.Style ({
-  image: new ol.style.Circle({
-    radius: LAYER_SYMBOL_SIZE[6][0],
-    fill: new ol.style.Fill({
-      color: 'rgba(' + LAYER_COLOR[6] + LAYER_ALPHA[0]
-    }),
-    stroke: new ol.style.Stroke({
-      color: 'rgba(' + LAYER_COLOR[6] + LAYER_ALPHA[1],
-      width: LAYER_SYMBOL_SIZE[6][1]
-    })
-  })
-});
-
-var STYLE_9934 = new ol.style.Style ({
-  image: new ol.style.Circle({
-    radius: LAYER_SYMBOL_SIZE[7][0],
-    fill: new ol.style.Fill({
-      color: 'rgba(' + LAYER_COLOR[7] + LAYER_ALPHA[0]
-    }),
-    stroke: new ol.style.Stroke({
-      color: 'rgba(' + LAYER_COLOR[7] + LAYER_ALPHA[1],
-      width: LAYER_SYMBOL_SIZE[7][1]
-    })
-  })
-});
-
-var STYLE_9935 = new ol.style.Style ({
-  image: new ol.style.Circle({
-    radius: LAYER_SYMBOL_SIZE[8][0],
-    fill: new ol.style.Fill({
-      color: 'rgba(' + LAYER_COLOR[8] + LAYER_ALPHA[0]
-    }),
-    stroke: new ol.style.Stroke({
-      color: 'rgba(' + LAYER_COLOR[8] + LAYER_ALPHA[1],
-      width: LAYER_SYMBOL_SIZE[8][1]
-    })
-  })
-});
+  LAYER_STYLE[i] = style;
+}

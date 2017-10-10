@@ -311,11 +311,11 @@ function initSpatialSearchDiv() {
   selectCurrentPostitionButton.classList.add('smallButton');
 
   selectCurrentPostitionButton.addEventListener ("click", function() {
-    if (!GEOLOCATION) {
+    if (!geolocation) {
       initGeoLocation();
     }
 
-    c1 = GEOLOCATION.getPosition();
+    c1 = geolocation.getPosition();
     c2 = ol.proj.transform(c1, 'EPSG:3857', 'EPSG:4326');
     latField.value = c2[0].toFixed(4);
     lonField.value = c2[1].toFixed(4);

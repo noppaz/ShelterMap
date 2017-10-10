@@ -18,14 +18,6 @@ var POLYGON_LAYERS = [
 0,
 1];
 
-RATINGS = [
-  '<i class="fa fa-paw" aria-hidden="true"></i>',
-  '<i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"></i>',
-  '<i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"></i>',
-  '<i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"></i>',
-  '<i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"></i>'
-]
-
 var LAYER_NAMES = [
   'Kåta',
   'Vindskydd',
@@ -43,23 +35,18 @@ var POLYGON_LAYER_NAMES = [
   'Nationalparker'
   ];
 
-var LAYER_STYLE = [
-STYLE_770,          // Kåta
-STYLE_775,          // Vindskydd
-STYLE_778,          // Campingplats
-STYLE_780,          // Vindskydd, ej i anslutning till Vägkarteleder
-STYLE_788,          // Rastplats, ej i anslutning till allmän väg
-STYLE_9931,         // Fjällstation, hotell, pensionat
-STYLE_9932,         // Turiststuga, övernattningsstuga
-STYLE_9934,         // Rastskydd, raststuga
-STYLE_9935          // Stugby
-];
 
-
-
+var LAYER_STYLE = [];
 var LAYER_LIST = [];
-
 var POLYGON_LIST = [];
+
+RATINGS = [
+  '<i class="fa fa-paw" aria-hidden="true"></i>',
+  '<i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"></i>',
+  '<i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"></i>',
+  '<i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"></i>',
+  '<i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"></i>'
+]
 
 var LAN_LIST = [
 'Skåne Län',
@@ -89,7 +76,7 @@ var LAN_LIST = [
 // ##############################################################
 var map;
 var CURRENT_SELECTED_FEATURE;
-var GEOLOCATION;
+var geolocation;
 
 function initMap() {
 	// Create the map element
@@ -126,12 +113,12 @@ function initMap() {
     // style: vectorStyle
   });
   map.addLayer(vectorLayer);
-  POLYGON_LIST[0] = vectorLayer;
+  // POLYGON_LIST[0] = vectorLayer;
 
-  for (i = 0; i < LAN_LIST.length; i++) {
-    // Loads naturreservat one län at a time
-    initPolygons(0, LAN_LIST[i]);
-  }
+  // for (i = 0; i < LAN_LIST.length; i++) {
+  //   // Loads naturreservat one län at a time
+  //   initPolygons(0, LAN_LIST[i]);
+  // }
   
 	// Add relevent controls
 	addMousePosition(map);
@@ -253,42 +240,48 @@ function initUI() {
 }
 
 function initGeoLocation() {
-
-  // Map related styling
-  // var locationVectorSource = new ol.source.Vector({});
-
-  // var locationStyle = new ol.style.Style ({
-  //   image: new ol.style.Circle({
-  //     radius: 10,
-  //     fill: new ol.style.Fill({
-  //       color: 'rgba(0, 60, 136, 0.5)'
-  //     }),
-  //     stroke: new ol.style.Stroke({
-  //       color: 'rgba(0, 60, 136, 0.7)',
-  //       width: 2
-  //     })
-  //   })
-  // });
-
-  // var locationVectorLayer = new ol.layer.Vector({
-  //   source: locationVectorSource,
-  //   style: locationStyle
-  // });
-
-  // Init the geolocator
-  GEOLOCATION = new ol.Geolocation({
+  geolocation = new ol.Geolocation({
     // take the projection to use from the map's view
     projection: map.getView().getProjection()
   });
 
-  GEOLOCATION.setTracking(true);
+  var accuracyFeature = new ol.Feature();
+      geolocation.on('change:accuracyGeometry', function() {
+        accuracyFeature.setGeometry(geolocation.getAccuracyGeometry());
+      });
 
-  // GEOLOCATION.on('change', function(evt) {
-  //   feature = new ol.geom.Circle(GEOLOCATION.getPosition(), 20);
-  //   locationVectorSource.addFeature(feature);
-  // });
+  var positionFeature = new ol.Feature();
+  positionFeature.setStyle(new ol.style.Style({
+    image: new ol.style.Circle({
+      radius: 6,
+      fill: new ol.style.Fill({
+        color: '#3399CC'
+      }),
+      stroke: new ol.style.Stroke({
+        color: '#fff',
+        width: 2
+      })
+    })
+  }));
 
-  // map.addLayer(locationVectorLayer);
+  geolocation.on('change:position', function() {
+    var coordinates = geolocation.getPosition();
+    positionFeature.setGeometry(coordinates ?
+      new ol.geom.Point(coordinates) : null);
+  });
+
+  // Init the geolocator
+  
+
+  geolocation.setTracking(true);
+
+  new ol.layer.Vector({
+    map: map,
+    source: new ol.source.Vector({
+      features: [accuracyFeature, positionFeature]
+    })
+  });
+
 }
 
 
@@ -299,21 +292,16 @@ window.onresize = function() {
 
 function formatPolyCoords (wktString) {
   // Formats WKT coordinates from database to desired format with projection for rendering
-  // console.log(wktString);
   var coordString = wktString.substring(9, wktString.indexOf(")"));
   var coordString2 = coordString.replace(/ /g, ',');
-  // console.log(coordString2);
   var coordinates = coordString2.split(',');
-
 
   var coords2 = [];
   // var projectedPair;
   for (j = 0; j < coordinates.length; j += 2) {
     coords2.push([Number(coordinates[j]), Number(coordinates[j+1])]);
   }
-  // console.log(coords2);
 
-  // return coordsProjected;
   return coords2;
 }
 
@@ -344,8 +332,9 @@ function handlePointSelected(feature, centerOn) {
   CURRENT_SELECTED_FEATURE = feature;
 
   if (centerOn) {
-    map.getView().setCenter(feature.getGeometry().getCoordinates());
-    map.getView().setZoom(11);
+    flyTo(feature.getGeometry().getCoordinates(), function() {})
+    //map.getView().setCenter(feature.getGeometry().getCoordinates());
+    //map.getView().setZoom(11);
   }
   
   if (featureInfoContainer.style.display = 'none') {
@@ -392,6 +381,36 @@ function addMousePosition(map) {
   });
   // Add the control to the map
   map.addControl(mousePosition);
+}
+
+function flyTo(location, done) {
+  var view = map.getView();
+  var duration = 3000;
+  var initialZoom = view.getZoom();
+  var finalZoom = 10;
+  var parts = 2;
+  var called = false;
+  function callback(complete) {
+    --parts;
+    if (called) {
+      return;
+    }
+    if (parts === 0 || !complete) {
+      called = true;
+      done(complete);
+    }
+  }
+  view.animate({
+    center: location,
+    duration: duration
+  }, callback);
+  view.animate({
+    zoom: 7,
+    duration: duration / 2
+  }, {
+    zoom: finalZoom,
+    duration: duration / 2
+  }, callback);
 }
 
 // ##############################################################
