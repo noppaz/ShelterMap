@@ -10,6 +10,11 @@ var LAYER_COLOR = [
 '255, 0, 255'         // Stugby
 ];
 
+var POLYGON_LAYER_COLOR = [
+'178, 102, 255',      // Naturreservat
+'0, 204, 204',        // Nationalpark
+]
+
 var LAYER_SYMBOL_SIZE = [
 [3, 1],             // Kåta
 [3, 1],             // Vindskydd

@@ -39,20 +39,22 @@
     width: 31px;
 }
 
-#filterContainer {
+#filterContainer, #polygonFilterContainer {
 	position: absolute;
     top: 80px;
     left: 42px;
 	width: 170px;
 	z-index: 3;
+	padding: 5px;
 }
 
 #spatialSearchContainer {
 	position: absolute;
-    top: 107px;
+    top: 80px;
     left: 42px;
 	width: 220px;
 	z-index: 3;
+	padding: 5px;
 }
 
 #featureInfoContainer {
@@ -95,6 +97,12 @@
 	font-size: 16px;
 	font-family: FontAwesome;
     content: "\f0b0";
+}
+
+#polygonFilterButton:before {
+	font-size: 16px;
+	font-family: FontAwesome;
+    content: "\f278";
 }
 
 #spatialSearchButton:before {

@@ -14,6 +14,10 @@ var LAYERS = [
   9935,             // Stugby
   ];
 
+var POLYGON_LAYERS = [
+0,
+1];
+
 RATINGS = [
   '<i class="fa fa-paw" aria-hidden="true"></i>',
   '<i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"></i>',
@@ -32,6 +36,11 @@ var LAYER_NAMES = [
   'Övernattningsstuga',
   'Rastskydd',
   'Stugby'
+  ];
+
+var POLYGON_LAYER_NAMES = [
+  'Naturreservat',
+  'Nationalparker'
   ];
 
 var LAYER_STYLE = [
@@ -186,7 +195,7 @@ function initLayer(kkod, style) {
   });
 }
 
-function initPolygons(type, lan, ) {
+function initPolygons(type, lan) {
   var request = $.ajax({
         url: "/api/getPolygons",
         method: "POST",
@@ -196,8 +205,10 @@ function initPolygons(type, lan, ) {
 
   request.done(function(res) {
     var vectorSource;
+    // Type 0 == naturreservat
     if (type == 0) {
       vectorSource = POLYGON_LIST[0].getSource();
+    // Type 1 == nationalparker
     } else {
       vectorSource = new ol.source.Vector({});
 
@@ -236,6 +247,7 @@ function initPolygons(type, lan, ) {
 
 function initUI() {
   initFilterDiv();
+  initPolygonFilterDiv();
   initSpatialSearchDiv();
   initFeatureInfoContainer();
 }
@@ -388,6 +400,10 @@ function addMousePosition(map) {
 
 function getLayerByID(id) {
   return LAYER_LIST[id];
+}
+
+function getPolygonLayerByID(id) {
+  return POLYGON_LIST[id];
 } 
 
 function findLayerNumber(kkod) {

@@ -134,6 +134,63 @@ function initFilterDiv() {
   return filterContainer;
 }
 
+function initPolygonFilterDiv() {
+  // Init div containing the filter
+  var optionsContainter = document.getElementById("optionsContainer");
+  var sideNav = document.getElementById("sideNav");
+  var polygonFilterContainer = document.createElement("div");
+  polygonFilterContainer.id = "polygonFilterContainer";
+  polygonFilterContainer.className = "container text";
+  sideNav.appendChild(polygonFilterContainer);
+  polygonFilterContainer.style.display = 'none';
+
+  // Init button in the options container
+  var polygonFilterButton = document.createElement("button");
+  polygonFilterButton.setAttribute("id", "polygonFilterButton");
+  polygonFilterButton.classList.add('sideButton');
+  optionsContainter.appendChild(polygonFilterButton);
+
+  // Hook listener to show/hid filterdiv
+  polygonFilterButton.addEventListener ("click", function() {
+    if (polygonFilterContainer.style.display == 'none') {
+      hideSideNavElements();
+      polygonFilterContainer.style.display = 'block';
+    } else {
+      polygonFilterContainer.style.display = 'none';
+    }
+  });
+
+  // Create one checkbox for each layer
+  for (i = 0; i < POLYGON_LAYERS.length; i++) {
+    rowContainer = document.createElement('div');
+    legend = document.createElement('span');
+    legend.style.color = 'rgb(' + POLYGON_LAYER_COLOR[i] + ')';
+    legend.innerHTML = '<i class="fa fa-map-o" aria-hidden="true"></i>';
+
+    checkboxContainer = createCheckbox(POLYGON_LAYERS[i].toString(), POLYGON_LAYER_NAMES[i], true);
+    checkbox = checkboxContainer.childNodes[0];
+    label = checkboxContainer.childNodes[1];
+
+    // Display or hide layer associated with the checkbox
+    checkbox.addEventListener( 'change', function() {
+      layer = getPolygonLayerByID(this.id);
+      var label = $('label[for=' + this.id + ']')[0];
+      if(this.checked) {
+        layer.setVisible(true);
+        label.classList.toggle('unChecked');
+      } else {
+        layer.setVisible(false);
+        label.classList.toggle('unChecked');
+      }
+    });
+    
+    rowContainer.appendChild(legend);
+    rowContainer.appendChild(checkboxContainer);
+    polygonFilterContainer.appendChild(rowContainer);
+  }
+  return polygonFilterContainer;
+}
+
 function initSpatialSearchDiv() {
   // Init div containing the filter
   var optionsContainter = document.getElementById("optionsContainer");
