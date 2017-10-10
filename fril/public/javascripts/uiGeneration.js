@@ -108,7 +108,7 @@ function initFilterDiv() {
     rowContainer = document.createElement('div');
     legend = document.createElement('span');
     legend.style.color = 'rgb(' + LAYER_COLOR[i] + ')';
-    legend.innerHTML = '<i class="fa fa-circle-o" aria-hidden="true"></i>';
+    legend.innerHTML = '<i class="fa fa-bandcamp" aria-hidden="true"></i>';
 
     checkboxContainer = createCheckbox(LAYERS[i].toString(), LAYER_NAMES[i], true);
     checkbox = checkboxContainer.childNodes[0];
@@ -117,7 +117,6 @@ function initFilterDiv() {
     // Display or hide layer associated with the checkbox
     checkbox.addEventListener( 'change', function() {
       layer = getLayerByID(this.id);
-      // var label = $("label[for='"+$(this).attr('id')+"']");
       var label = $('label[for=' + this.id + ']')[0];
       if(this.checked) {
         layer.setVisible(true);
@@ -185,6 +184,97 @@ function initSpatialSearchDiv() {
   ratingDD = createDropDown(RATINGS, 'Rating greater than', 'ratingDDfilter');
   layerFilterContainer.appendChild(ratingDD);
 
+  var spatialParamsContainer = document.createElement("div");
+  spatialParamsContainer.id = "spatialParamsContainer";
+
+  var latField = document.createElement('input');
+  latField.setAttribute("id", "latSearch");
+  latField.classList.add('text');
+  latField.classList.add('textInput');
+  latField.placeholder = 'Latitude'
+
+  latField.addEventListener('change', function (evt) {
+    if (this.value <= 90 && this.value >= -90) {
+      this.classList.remove('invalid');
+      this.classList.add('valid');
+    } else {
+      this.classList.remove('valid');
+      this.classList.add('invalid');
+    }
+    if (!this.value) {
+      this.classList.remove('valid');
+      this.classList.remove('invalid');
+    }
+  });
+
+  var lonField = document.createElement('input');
+  lonField.setAttribute("id", "lonSearch");
+  lonField.classList.add('text');
+  lonField.classList.add('textInput');
+  lonField.placeholder = 'Longitude'
+
+  lonField.addEventListener('change', function (evt) {
+    if (this.value <= 180 && this.value >= -180) {
+      this.classList.remove('invalid');
+      this.classList.add('valid');
+    } else {
+      this.classList.remove('valid');
+      this.classList.add('invalid');
+    }
+    if (!this.value) {
+      this.classList.remove('valid');
+      this.classList.remove('invalid');
+    }
+  });
+
+  spatialParamsContainer.appendChild(latField);
+  spatialParamsContainer.appendChild(lonField);
+
+  var spatialButtonsContainer = document.createElement("div");
+  spatialButtonsContainer.id = "spatialButtonsContainer";
+
+  var selectViewCenterButton = document.createElement("button");
+  selectViewCenterButton.setAttribute("id", "selectViewCenterButton");
+  selectViewCenterButton.innerHTML = '<i class="fa fa-map-marker" aria-hidden="true"></i>';
+  selectViewCenterButton.classList.add('smallButton');
+
+  selectViewCenterButton.addEventListener ("click", function() {
+    c1 = map.getView().getCenter();
+    c2 = ol.proj.transform(c1, 'EPSG:3857', 'EPSG:4326');
+    latField.value = c2[0].toFixed(4);
+    lonField.value = c2[1].toFixed(4);
+    var event = new Event('change');
+    latField.dispatchEvent(event);
+    lonField.dispatchEvent(event);
+  });
+
+  var selectCurrentPostitionButton = document.createElement("button");
+  selectCurrentPostitionButton.setAttribute("id", "selectCurrentPostitionButton");
+  selectCurrentPostitionButton.innerHTML = '<i class="fa fa-crosshairs" aria-hidden="true"></i>';
+  selectCurrentPostitionButton.classList.add('smallButton');
+
+  selectCurrentPostitionButton.addEventListener ("click", function() {
+    if (!GEOLOCATION) {
+      initGeoLocation();
+    }
+
+    c1 = GEOLOCATION.getPosition();
+    c2 = ol.proj.transform(c1, 'EPSG:3857', 'EPSG:4326');
+    latField.value = c2[0].toFixed(4);
+    lonField.value = c2[1].toFixed(4);
+    var event = new Event('change');
+    latField.dispatchEvent(event);
+    lonField.dispatchEvent(event);
+  });
+
+  spatialButtonsContainer.appendChild(selectViewCenterButton);
+  spatialButtonsContainer.appendChild(selectCurrentPostitionButton);
+
+  spatialParamsContainer.appendChild(latField);
+  spatialParamsContainer.appendChild(lonField);
+  spatialParamsContainer.appendChild(spatialButtonsContainer);
+
+
 
   // Init button in the options container
   var spatialSearchExecuteButton = document.createElement("button");
@@ -193,16 +283,22 @@ function initSpatialSearchDiv() {
   spatialSearchExecuteButton.classList.add('submitButton');
  
   // Hook listener to show/hid filterdiv
-  spatialSearchButton.addEventListener ("click", function() {
-    // if all fields filled in
-      // noahs api query
-      // pan to feature
+  spatialSearchExecuteButton.addEventListener ("click", function() {
+    searchLayer = document.getElementById('layerDDfilter').value;
+    ratingCriteria = document.getElementById('ratingDDfilter').value;
+    lat = latField.value;
+    lon = lonField.value;
+
+    if (searchLayer && ratingCriteria && latField.classList.contains('valid') && lonField.classList.contains('valid')) {
+      spatialSearch(searchLayer, ratingCriteria, lat, lon);
+    }
   });
 
 
   spatialSearchContainer.appendChild(headingContainer);
   spatialSearchContainer.appendChild(descriptionContainer);
   spatialSearchContainer.appendChild(layerFilterContainer);
+  spatialSearchContainer.appendChild(spatialParamsContainer);
   spatialSearchContainer.appendChild(spatialSearchExecuteButton);  
 }
 

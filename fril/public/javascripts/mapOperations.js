@@ -55,6 +55,7 @@ var LAYER_LIST = [];
 // ##############################################################
 var map;
 var CURRENT_SELECTED_FEATURE;
+var GEOLOCATION;
 
 function initMap() {
 	// Create the map element
@@ -93,10 +94,12 @@ function initMap() {
         return feature;
         });
     if (feature) {
-      handlePointSelected(feature);
+      handlePointSelected(feature, false);
         //here you can add you code to display the coordinates or whatever you want to do
     }
   });
+
+  //initGeoLocation();
 
 	// Retrun the map
 	return map;
@@ -148,6 +151,47 @@ function initUI() {
   initFeatureInfoContainer();
 }
 
+function initGeoLocation() {
+
+  // Map related styling
+  // var locationVectorSource = new ol.source.Vector({});
+
+  // var locationStyle = new ol.style.Style ({
+  //   image: new ol.style.Circle({
+  //     radius: 10,
+  //     fill: new ol.style.Fill({
+  //       color: 'rgba(0, 60, 136, 0.5)'
+  //     }),
+  //     stroke: new ol.style.Stroke({
+  //       color: 'rgba(0, 60, 136, 0.7)',
+  //       width: 2
+  //     })
+  //   })
+  // });
+
+  // var locationVectorLayer = new ol.layer.Vector({
+  //   source: locationVectorSource,
+  //   style: locationStyle
+  // });
+
+  // Init the geolocator
+  GEOLOCATION = new ol.Geolocation({
+    // take the projection to use from the map's view
+    projection: map.getView().getProjection()
+  });
+
+  GEOLOCATION.setTracking(true);
+
+  // GEOLOCATION.on('change', function(evt) {
+  //   feature = new ol.geom.Circle(GEOLOCATION.getPosition(), 20);
+  //   locationVectorSource.addFeature(feature);
+  // });
+
+  // map.addLayer(locationVectorLayer);
+}
+
+
+
 window.onresize = function() {
   setTimeout( function() { map.updateSize();}, 200);
 }
@@ -156,7 +200,7 @@ window.onresize = function() {
 // ---------------------- Interaction ---------------------------
 // ##############################################################
 
-function handlePointSelected(feature) {
+function handlePointSelected(feature, centerOn) {
   var selectedStyle = new ol.style.Style ({
     image: new ol.style.Circle({
       radius: 7,
@@ -177,6 +221,11 @@ function handlePointSelected(feature) {
   feature.setStyle(selectedStyle);
   var featureInfoContainer = document.getElementById("featureInfoContainer");
   CURRENT_SELECTED_FEATURE = feature;
+
+  if (centerOn) {
+    map.getView().setCenter(feature.getGeometry().getCoordinates());
+    map.getView().setZoom(11);
+  }
   
   if (featureInfoContainer.style.display = 'none') {
     featureInfoContainer.style.display = 'block';
@@ -240,6 +289,16 @@ function findLayerNumber(kkod) {
   }
 }
 
+function getKKODfromLayerName(name) {
+  for (i = 0; i < LAYER_NAMES.length; i++) {
+    if (LAYER_NAMES[i] == name) {
+      return LAYERS[i];
+    }
+  }
+
+  return null
+}
+
 // ##############################################################
 // ---------------------- Database ------------------------------
 // ##############################################################
@@ -251,7 +310,6 @@ function rateFeature(feature, rating) {
   new_rating = (old_rating*n + rating)/(n + 1)
   feature.R.n_rev = n + 1;
   feature.R.rating = new_rating;
-  console.log(feature);
 
   updateFeatureHTLM(new_rating, n + 1)
   var request = $.ajax({
@@ -259,6 +317,63 @@ function rateFeature(feature, rating) {
       method: "POST",
       data: {gid:feature.R.gid, rating:rating},
       cache: false
+  });
+}
+
+function spatialSearch(layer, rating, lat, lon) {
+  rating = 4;
+  kkod = getKKODfromLayerName(layer);
+
+  var request = $.ajax({
+      url: "/api/getClosestFeature",
+      method: "POST",
+      data: {coordlon:lon.toString(), coordlat:lat.toString(), kkod:kkod.toString(), grade:rating.toString()},
+      cache: false
+  });
+
+  request.done(function(res) {
+    layer = getLayerByID(res[0].kkod);
+    var layerFeatures = layer.getSource().getFeatures();
+
+    for (i = 0; i < layerFeatures.length; i++) {
+      //console.log(i);
+      if (res[0].gid == layerFeatures[i].R.gid) {
+
+        handlePointSelected(layerFeatures[i], true);
+        break;
+
+
+        // console.log('New:');
+        // console.log(map.getView().getCenter());
+        // console.log(layerFeatures[i].getGeometry().getCoordinates());
+
+        // coords = ol.proj.transform(layerFeatures[i].getGeometry().getCoordinates(), 'EPSG:3857', 'EPSG:4326');
+        // console.log('coords');
+        // console.log(coords);
+        // console.log('coords porjed');
+        // console.log(ol.proj.fromLonLat(coords));
+
+        // //map.getView().setCenter([lon, lat]);
+        // var view2 = new ol.View({
+        //   center: layerFeatures[i].getGeometry().getCoordinates(),
+        //   zoom: 11
+        // });
+
+        // map.setView(view2);
+        // console.log('view 2');
+        // console.log(map.getView().getCenter());
+
+        // var view3 = new ol.View({
+        //   center: ol.proj.fromLonLat(coords),
+        //   zoom: 11
+        // });
+        
+        // map.setView(view3);
+        // console.log('view 3');
+        // console.log(map.getView().getCenter());
+        // break;
+      }
+    }
   });
 }
 
