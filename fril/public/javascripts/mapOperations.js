@@ -341,37 +341,6 @@ function spatialSearch(layer, rating, lat, lon) {
 
         handlePointSelected(layerFeatures[i], true);
         break;
-
-
-        // console.log('New:');
-        // console.log(map.getView().getCenter());
-        // console.log(layerFeatures[i].getGeometry().getCoordinates());
-
-        // coords = ol.proj.transform(layerFeatures[i].getGeometry().getCoordinates(), 'EPSG:3857', 'EPSG:4326');
-        // console.log('coords');
-        // console.log(coords);
-        // console.log('coords porjed');
-        // console.log(ol.proj.fromLonLat(coords));
-
-        // //map.getView().setCenter([lon, lat]);
-        // var view2 = new ol.View({
-        //   center: layerFeatures[i].getGeometry().getCoordinates(),
-        //   zoom: 11
-        // });
-
-        // map.setView(view2);
-        // console.log('view 2');
-        // console.log(map.getView().getCenter());
-
-        // var view3 = new ol.View({
-        //   center: ol.proj.fromLonLat(coords),
-        //   zoom: 11
-        // });
-        
-        // map.setView(view3);
-        // console.log('view 3');
-        // console.log(map.getView().getCenter());
-        // break;
       }
     }
   });
