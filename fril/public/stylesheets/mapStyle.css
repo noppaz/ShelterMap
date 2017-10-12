@@ -43,7 +43,7 @@
 	position: absolute;
     top: 80px;
     left: 42px;
-	width: 170px;
+	width: 180px;
 	z-index: 3;
 	padding: 5px;
 }
@@ -81,12 +81,12 @@
 }
 
 #spatialButtonsContainer {
-	width: 40%;
-	box-sizing: border-box;
-	float: right;
-	position: relative;
-    top: -17px;
-    right: -10px;
+	width: 0%;
+    box-sizing: border-box;
+    float: right;
+    position: relative;
+    top: -29px;
+    right: 40px;
 }
 
 /*##############################################################*/
@@ -111,19 +111,12 @@
     content: "\f0ac";
 }
 
-#spatialSearchExecuteButton:after {
-	font-size: 13px;
-	font-family: FontAwesome;
-    content: "\f05b";
-}
-
-
 /*##############################################################*/
 /*------------------- Fields /----------------------------------*/
 /*##############################################################*/
 
 #lonSearch, #latSearch {
-	width: 60%;
+	width: 75%;
 	box-sizing: border-box;
 	float: left;
 	margin: 5px 0;

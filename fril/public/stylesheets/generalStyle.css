@@ -69,7 +69,7 @@ body {
 }
 
 .smallButton {
-	margin: 5px;
+	margin: 2px;
 }
 
 .closeButton {
@@ -108,7 +108,6 @@ body {
     content: "\f1b0";
 }
 
-
 .ratingSelect.hoverTarget {
 	color: rgba(0, 60, 136, 0.6);
 }
@@ -121,6 +120,19 @@ body {
 	color: rgba(0, 60, 136, 0.4)
 }
 
+/*Tooltip*/
+.sideButton:hover:after, .smallButton:hover:after {
+	content: attr(name);
+	position: absolute;
+	white-space: nowrap;
+	background-color: rgba(0, 60, 136, 0.6);
+	padding: 3px 7px;
+	color: #FFF;
+	border-radius: 3px;
+	margin-left: 15px;
+	margin-top: -3px;
+	z-index: 10;
+}
 
 /*##############################################################*/
 /*------------------- Inputs -----------------------------------*/
@@ -167,8 +179,6 @@ body {
 	background-color: rgba(255, 60, 0, 0.1);
 }
 
-
-
 /*##############################################################*/
 /*------------------- Dropdown ---------------------------------*/
 /*##############################################################*/
@@ -196,8 +206,6 @@ body {
 	cursor: pointer;
 	width: 95%;
 	box-sizing: border-box;
-	/*border-bottom: 1px solid;
-	border-color: rgba(0, 60, 136, 0.7);*/
 }
 
 .dropDownIcon {
