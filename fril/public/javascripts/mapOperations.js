@@ -280,9 +280,9 @@ function initGeoLocation() {
   });
 }
 
-window.onresize = function() {
-  setTimeout( function() { map.updateSize();}, 200);
-}
+// window.onresize = function() {
+//   setTimeout( function() { map.updateSize();}, 200);
+// }
 
 function formatPolyCoords (wktString) {
   // Formats WKT coordinates from database to desired format with projection for rendering

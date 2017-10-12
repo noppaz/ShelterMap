@@ -68,6 +68,16 @@ body {
 	background-color: rgba(0, 60, 136, 0.7);
 }
 
+@media only screen and (max-width: 500px) {
+    .sideButton {
+    	font-size: 1.5em;
+		height: 1.375em;
+		width: 1.375em;
+    }
+}
+
+
+
 .smallButton {
 	margin: 2px;
 }
@@ -121,17 +131,20 @@ body {
 }
 
 /*Tooltip*/
-.sideButton:hover:after, .smallButton:hover:after {
-	content: attr(name);
-	position: absolute;
-	white-space: nowrap;
-	background-color: rgba(0, 60, 136, 0.6);
-	padding: 3px 7px;
-	color: #FFF;
-	border-radius: 3px;
-	margin-left: 15px;
-	margin-top: -3px;
-	z-index: 10;
+@media only screen and (min-width: 500px) {
+	.sideButton:hover:after, .smallButton:hover:after {
+		content: attr(name);
+		position: absolute;
+		white-space: nowrap;
+		background-color: rgba(0, 60, 136, 0.6);
+		padding: 3px 7px;
+		color: #FFF;
+		border-radius: 3px;
+		margin-left: 15px;
+		margin-top: -3px;
+		z-index: 10;
+		overflow: hidden;
+	}
 }
 
 /*##############################################################*/
