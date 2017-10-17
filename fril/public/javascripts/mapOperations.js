@@ -37,15 +37,16 @@ var POLYGON_LAYER_NAMES = [
 
 
 var LAYER_STYLE = [];
+var POLYGON_LAYER_STYLE = [];
 var LAYER_LIST = [];
 var POLYGON_LIST = [];
 
 RATINGS = [
-  '<i class="fa fa-paw" aria-hidden="true"></i>',
-  '<i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"></i>',
-  '<i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"></i>',
-  '<i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"></i>',
-  '<i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"> </i><i class="fa fa-paw" aria-hidden="true"></i>'
+  '1',
+  '2',
+  '3',
+  '4',
+  '5'
 ]
 
 var LAN_LIST = [
@@ -83,25 +84,15 @@ function initMap() {
 	map = new ol.Map({
     target: 'map',
     layers: [
-    new ol.layer.Tile({
-      source: new ol.source.XYZ({
-        // url: 'https://api.mapbox.com/styles/v1/mapbox/streets-v10/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1Ijoibm9haGhvbG0iLCJhIjoiY2lrZWNmNDI2MDA0YnY4bHo3aXU1dGZkeSJ9.8Eavws7sLknJNwX_9YcEpw'
-        url: 'https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1Ijoibm9haGhvbG0iLCJhIjoiY2lrZWNmNDI2MDA0YnY4bHo3aXU1dGZkeSJ9.8Eavws7sLknJNwX_9YcEpw'
+      new ol.layer.Tile({
+        source: new ol.source.XYZ({
+          url: 'https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1Ijoibm9haGhvbG0iLCJhIjoiY2lrZWNmNDI2MDA0YnY4bHo3aXU1dGZkeSJ9.8Eavws7sLknJNwX_9YcEpw'
+        })
       })
-    })
     ],
-    // layers: [
-    //   new ol.layer.Tile({
-    //     source: new ol.source.OSM({
-    //       //"url" : "http://tile2.opencyclemap.org/transport/{z}/{x}/{y}.png"
-    //     })
-    //   })
-    // ],
-
     controls : ol.control.defaults({
         attribution : false
     }),
-
     view: new ol.View({
       center: ol.proj.fromLonLat([18.00, 63.00]),
       zoom: 5
@@ -113,38 +104,38 @@ function initMap() {
     initLayer(LAYERS[i], LAYER_STYLE[i]);
   }
   // Load polygon data
-  initPolygons(1, ''); // Loads nationalparker
+  initPolygons(1, '', POLYGON_LAYER_STYLE[1]); // Loads nationalparker
 
   // Create naturreservat layer and store it
   var vectorLayer = new ol.layer.Vector({
     source: new ol.source.Vector({})//,
-    // style: vectorStyle
   });
   map.addLayer(vectorLayer);
-  // POLYGON_LIST[0] = vectorLayer;
 
-  // for (i = 0; i < LAN_LIST.length; i++) {
-  //   // Loads naturreservat one län at a time
-  //   initPolygons(0, LAN_LIST[i]);
-  // }
+  for (i = 0; i < LAN_LIST.length; i++) {
+    // Loads naturreservat one län at a time
+    initPolygons(0, LAN_LIST[i], POLYGON_LAYER_STYLE[0]);
+  }
   
 	// Add relevent controls
 	addMousePosition(map);
-
+  initGeoLocation();
 
   map.on('singleclick', function(evt) {
     var feature = map.forEachFeatureAtPixel(evt.pixel, function(feature, layer) {
-        return feature;
-        });
+      return feature;
+    });
     if (feature) {
-      if (feature.getGeometry().A.length < 3) handlePointSelected(feature, false);
-      else handlePolygonSelected(feature);
+      if (feature.getGeometry().A.length < 3) {
+        handlePointSelected(feature, false);
+      } else {
+        handlePolygonSelected(feature);
+      } 
     }
   });
 
 	// Return the map
 	return map;
-  console.log(POLYGON_LIST);
 }
 
 function initLayer(kkod, style) {
@@ -167,9 +158,7 @@ function initLayer(kkod, style) {
     for (i = 0; i < res.length; i++) {
       // Location/geometry
       var wktGeometry = Terraformer.WKT.parse(res[i].geometry);
-      // console.log(wktGeometry.coordinates);
       var geometry = new ol.geom.Point(ol.proj.transform(wktGeometry.coordinates, 'EPSG:4326', 'EPSG:3857'));
-
       var feature = new ol.Feature({});
       feature.setStyle(style);
       feature.setGeometry(geometry);
@@ -187,7 +176,7 @@ function initLayer(kkod, style) {
   });
 }
 
-function initPolygons(type, lan) {
+function initPolygons(type, lan, style) {
   var request = $.ajax({
         url: "/api/getPolygons",
         method: "POST",
@@ -205,8 +194,8 @@ function initPolygons(type, lan) {
       vectorSource = new ol.source.Vector({});
 
       var vectorLayer = new ol.layer.Vector({
-        source: vectorSource//,
-        // style: vectorStyle
+        source: vectorSource,
+        style: style
       });
 
       map.addLayer(vectorLayer);
@@ -223,6 +212,7 @@ function initPolygons(type, lan) {
 
       var feature = new ol.Feature({});
       feature.setGeometry(geometry);
+      feature.setStyle(style);
 
       // Attributes
       feature.setId(resultRow.nvrid);
@@ -277,8 +267,6 @@ function initGeoLocation() {
   });
 
   // Init the geolocator
-  
-
   geolocation.setTracking(true);
 
   new ol.layer.Vector({
@@ -287,13 +275,6 @@ function initGeoLocation() {
       features: [accuracyFeature, positionFeature]
     })
   });
-
-}
-
-
-
-window.onresize = function() {
-  setTimeout( function() { map.updateSize();}, 200);
 }
 
 function formatPolyCoords (wktString) {
@@ -303,7 +284,6 @@ function formatPolyCoords (wktString) {
   var coordinates = coordString2.split(',');
 
   var coords2 = [];
-  // var projectedPair;
   for (j = 0; j < coordinates.length; j += 2) {
     coords2.push([Number(coordinates[j]), Number(coordinates[j+1])]);
   }
@@ -329,7 +309,6 @@ function handlePointSelected(feature, centerOn) {
     })
   });
 
-
   if (CURRENT_SELECTED_FEATURE) {
     if (CURRENT_SELECTED_FEATURE.getGeometry().A.length < 3) {
       resetFeatureStyle(CURRENT_SELECTED_FEATURE);
@@ -344,23 +323,17 @@ function handlePointSelected(feature, centerOn) {
 
   if (centerOn) {
     flyTo(feature.getGeometry().getCoordinates(), function() {})
-    //map.getView().setCenter(feature.getGeometry().getCoordinates());
-    //map.getView().setZoom(11);
   }
-  
+
   if (featureInfoContainer.style.display == 'none') {
     hideInfoBoxElements();
     featureInfoContainer.style.display = 'block';
-  } else {
-    featureInfoContainer.style.display = 'none';
   }
 
   clearRatingUI();
 
   var heading = featureInfoContainer.childNodes[0];
   var rating = featureInfoContainer.childNodes[1];
-  // var desc = featureInfoContainer.childNodes[2];
-
   heading.innerHTML = feature.R.kategori;
 
   if (feature.R.rating == null) {
@@ -371,17 +344,13 @@ function handlePointSelected(feature, centerOn) {
 }
 
 function handlePolygonSelected(feature) {
-  console.log("POLYGON SELECTED");
-  var selectedStyle = new ol.style.Style ({
-    image: new ol.style.Circle({
-      radius: 7,
-      fill: new ol.style.Fill({
-        color: 'rgba(0, 60, 136, 0.5)'
-      }),
-      stroke: new ol.style.Stroke({
-        color: 'rgba(0, 60, 136, 0.7)',
-        width: 3
-      })
+  var selectedStyle = new ol.style.Style({
+    stroke: new ol.style.Stroke({
+      color: 'rgba(0, 120, 120, 0.7)',
+      width: 3
+    }),
+    fill: new ol.style.Fill({
+      color: 'rgba(0, 120, 120, 0.5)'
     })
   });
 
@@ -397,17 +366,10 @@ function handlePolygonSelected(feature) {
   var polygonInfoContainer = document.getElementById("polygonInfoContainer");
   CURRENT_SELECTED_FEATURE = feature;
 
-  // if (centerOn) {
-  //   map.getView().setCenter(feature.getGeometry().getCoordinates());
-  //   map.getView().setZoom(11);
-  // }
-
   if (polygonInfoContainer.style.display == 'none') {
     hideInfoBoxElements();
     polygonInfoContainer.style.display = 'block';
   }
-
-  // clearRatingUI();
 
   var heading = polygonInfoContainer.childNodes[0];
   var type = polygonInfoContainer.childNodes[1];
@@ -415,13 +377,6 @@ function handlePolygonSelected(feature) {
 
   heading.innerHTML = feature.R.namn;
   type.innerHTML = feature.R.skyddstyp;
-  console.log(feature.R.skyddstyp);
-
-  // if (feature.R.rating == null) {
-  //   rating.innerHTML = 'Not rated'
-  // } else {
-  //   rating.innerHTML = (Math.round(feature.R.rating * 10 ) / 10) + '/5 [' + feature.R.n_rev + ']';
-  // }
 }
 
 function resetFeatureStyle(feature) {
@@ -431,9 +386,12 @@ function resetFeatureStyle(feature) {
 }
 
 function resetFeatureStylePolygon(feature) {
-  // kkod = feature.R.kkod;
-  // i = findLayerNumber(kkod);
-  // feature.setStyle(LAYER_STYLE[i]);
+  if (feature.R.skyddstyp == 'Naturreservat') {
+    var i = 0;
+  } else {
+    var i = 1;
+  }
+  feature.setStyle(POLYGON_LAYER_STYLE[i]);
 }
 
 function updateFeatureHTLM(new_rating, new_n) {
@@ -461,6 +419,13 @@ function flyTo(location, done) {
   var view = map.getView();
   var duration = 3000;
   var initialZoom = view.getZoom();
+
+  if (initialZoom > 7) {
+    zoom = 7;
+  } else {
+    zoom = initialZoom - 1;
+  }
+
   var finalZoom = 10;
   var parts = 2;
   var called = false;
@@ -479,7 +444,7 @@ function flyTo(location, done) {
     duration: duration
   }, callback);
   view.animate({
-    zoom: 7,
+    zoom: zoom,
     duration: duration / 2
   }, {
     zoom: finalZoom,
@@ -539,7 +504,6 @@ function rateFeature(feature, rating) {
 }
 
 function spatialSearch(layer, rating, lat, lon) {
-  rating = 4;
   kkod = getKKODfromLayerName(layer);
 
   var request = $.ajax({
@@ -554,44 +518,10 @@ function spatialSearch(layer, rating, lat, lon) {
     var layerFeatures = layer.getSource().getFeatures();
 
     for (i = 0; i < layerFeatures.length; i++) {
-      //console.log(i);
       if (res[0].gid == layerFeatures[i].R.gid) {
-
         handlePointSelected(layerFeatures[i], true);
         break;
       }
     }
   });
 }
-
-
-// ##############################################################
-// ---------------------- Not used ------------------------------
-// ##############################################################
-
-// function getQueryExtent(map) {
-// 	var extent = map.getView().calculateExtent(map.getSize());
-// 	console.log(map);
-// 	console.log(extent);
-
-// 	var markFeature = new ol.Feature({
-//   		geometry: new ol.geom.Point(ol.proj.transform([extent[0], extent[1]], 'EPSG:4326',     
-//   		'EPSG:3857'), 'Point')
-// 	});
-
-// 	map.getView().setCenter(ol.proj.transform([extent[0], extent[1]], 'EPSG:4326', 'EPSG:3857'));
-// 	var markFeature = new ol.Feature({
-//   		geometry: new ol.geom.Point(ol.proj.transform([extent[2], extent[3]], 'EPSG:4326',     
-//   		'EPSG:3857'), 'Point')
-// 	});
-
-// 	for (var i = 0; i < extent.length; i++) {
-// 		console.log(i);
-// 		var markFeature = new ol.Feature({
-//       		geometry: new ol.geom.Point(ol.proj.transform([extent[i].long, extent[i].lat], 'EPSG:4326',     
-//       		'EPSG:3857')),
-//      		name: '1'
-//    		});
-
-// 	}
-// }

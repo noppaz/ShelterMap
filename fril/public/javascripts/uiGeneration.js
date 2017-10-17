@@ -67,7 +67,6 @@ function createDropDown(content, placeholder, id) {
       dp = document.getElementById(id);
       dp.value = this.innerHTML;
     });
-
   }
 
   return dropDownContainer;
@@ -91,6 +90,7 @@ function initFilterDiv() {
   var filterButton = document.createElement("button");
   filterButton.setAttribute("id", "filterButton");
   filterButton.classList.add('sideButton');
+  filterButton.name = 'Filter point layers'
   optionsContainter.appendChild(filterButton);
 
   // Hook listener to show/hid filterdiv
@@ -148,6 +148,7 @@ function initPolygonFilterDiv() {
   var polygonFilterButton = document.createElement("button");
   polygonFilterButton.setAttribute("id", "polygonFilterButton");
   polygonFilterButton.classList.add('sideButton');
+  polygonFilterButton.name = 'Filter polygon layers'
   optionsContainter.appendChild(polygonFilterButton);
 
   // Hook listener to show/hid filterdiv
@@ -165,7 +166,7 @@ function initPolygonFilterDiv() {
     rowContainer = document.createElement('div');
     legend = document.createElement('span');
     legend.style.color = 'rgb(' + POLYGON_LAYER_COLOR[i] + ')';
-    legend.innerHTML = '<i class="fa fa-map-o" aria-hidden="true"></i>';
+    legend.innerHTML = '<i class="fa fa-map" aria-hidden="true"></i>';
 
     checkboxContainer = createCheckbox(POLYGON_LAYERS[i].toString(), POLYGON_LAYER_NAMES[i], true);
     checkbox = checkboxContainer.childNodes[0];
@@ -205,6 +206,7 @@ function initSpatialSearchDiv() {
   var spatialSearchButton = document.createElement("button");
   spatialSearchButton.setAttribute("id", "spatialSearchButton");
   spatialSearchButton.classList.add('sideButton');
+  spatialSearchButton.name = 'Spatial search'
   optionsContainter.appendChild(spatialSearchButton);
 
   // Hook listener to show/hid filterdiv
@@ -294,12 +296,13 @@ function initSpatialSearchDiv() {
   selectViewCenterButton.setAttribute("id", "selectViewCenterButton");
   selectViewCenterButton.innerHTML = '<i class="fa fa-map-marker" aria-hidden="true"></i>';
   selectViewCenterButton.classList.add('smallButton');
+  selectViewCenterButton.name = 'Set to current view center';
 
   selectViewCenterButton.addEventListener ("click", function() {
     c1 = map.getView().getCenter();
     c2 = ol.proj.transform(c1, 'EPSG:3857', 'EPSG:4326');
-    latField.value = c2[0].toFixed(4);
-    lonField.value = c2[1].toFixed(4);
+    latField.value = c2[1].toFixed(4);
+    lonField.value = c2[0].toFixed(4);
     var event = new Event('change');
     latField.dispatchEvent(event);
     lonField.dispatchEvent(event);
@@ -309,6 +312,7 @@ function initSpatialSearchDiv() {
   selectCurrentPostitionButton.setAttribute("id", "selectCurrentPostitionButton");
   selectCurrentPostitionButton.innerHTML = '<i class="fa fa-crosshairs" aria-hidden="true"></i>';
   selectCurrentPostitionButton.classList.add('smallButton');
+  selectCurrentPostitionButton.name = 'Set to current position';
 
   selectCurrentPostitionButton.addEventListener ("click", function() {
     if (!geolocation) {
@@ -317,8 +321,8 @@ function initSpatialSearchDiv() {
 
     c1 = geolocation.getPosition();
     c2 = ol.proj.transform(c1, 'EPSG:3857', 'EPSG:4326');
-    latField.value = c2[0].toFixed(4);
-    lonField.value = c2[1].toFixed(4);
+    latField.value = c2[1].toFixed(4);
+    lonField.value = c2[0].toFixed(4);
     var event = new Event('change');
     latField.dispatchEvent(event);
     lonField.dispatchEvent(event);
@@ -330,8 +334,6 @@ function initSpatialSearchDiv() {
   spatialParamsContainer.appendChild(latField);
   spatialParamsContainer.appendChild(lonField);
   spatialParamsContainer.appendChild(spatialButtonsContainer);
-
-
 
   // Init button in the options container
   var spatialSearchExecuteButton = document.createElement("button");
@@ -351,14 +353,12 @@ function initSpatialSearchDiv() {
     }
   });
 
-
   spatialSearchContainer.appendChild(headingContainer);
   spatialSearchContainer.appendChild(descriptionContainer);
   spatialSearchContainer.appendChild(layerFilterContainer);
   spatialSearchContainer.appendChild(spatialParamsContainer);
   spatialSearchContainer.appendChild(spatialSearchExecuteButton);  
 }
-
 
 
 function initFeatureInfoContainer() {
@@ -427,13 +427,11 @@ function initFeatureInfoContainer() {
     }
     if (rating >= 1) {
       rateFeature(CURRENT_SELECTED_FEATURE, rating);
-      clearRating();
+      clearRatingUI();
     }
   });
   
-  // Append to DOM
   featureInfoContainer.appendChild(rateButton);
-
 }
 
 function initPolygonInfoContainer() {
@@ -482,32 +480,6 @@ function initPolygonInfoContainer() {
   polygonInfoContainer.appendChild(typeContainer);
   polygonInfoContainer.appendChild(descriptionContainer);
   polygonInfoContainer.appendChild(closeButton);
-
-  // generateRateField(polygonInfoContainer);
-
-  // Rate submit button
-  // var rateButton = document.createElement("button");
-  // rateButton.innerHTML = "Rate";
-  // rateButton.classList.add('submitButton');
-
-  // rateButton.addEventListener ("click", function() {
-  //   var rating = 0;
-  //   for (i = 0; i < 5; i++) {
-  //     var e = document.getElementById('ratingElement' + i);
-  //     if (e.classList.contains('selectTarget')) {
-  //       rating += 1;
-  //     } else {
-  //       break;
-  //     }
-  //   }
-  //   if (rating >= 1) {
-  //     rateFeature(CURRENT_SELECTED_FEATURE, rating);
-  //     clearRating();
-  //   }
-  // });
-  
-  // Append to DOM
-  // featureInfoContainer.appendChild(rateButton);
 }
 
 function generateRateField(parent) {

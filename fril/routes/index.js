@@ -77,8 +77,6 @@ router.post('/api/rateFeature', function(req, res) {
 
 router.post('/api/getClosestFeature', function(req, res) {
 	var data = {coordlon: req.body.coordlon, coordlat: req.body.coordlat, kkod: req.body.kkod, grade: req.body.grade};
-
-	console.log('in api');
     var queryString = "SELECT gid, kkod, kategori, avg_grade AS rating, ST_AsText(geom) AS geometry, ST_Distance(geom, ST_GeomFromText('POINT(" + data.coordlon + " " + data.coordlat + ")',4326), false)/1000 AS dist_km " +  
 						"FROM (SELECT gid, kkod, kategori, ROUND(AVG(grade), 2) AS avg_grade, geom FROM " +
 						      	"(SELECT sv_skydd.gid, kkod, kategori, geom, grade FROM sv_skydd " +
@@ -86,8 +84,6 @@ router.post('/api/getClosestFeature', function(req, res) {
 						      "GROUP BY gid, kkod, kategori, geom) AS x " + 
 						"WHERE avg_grade >= " + data.grade +
 						" ORDER BY dist_km ASC LIMIT 1;";
-
-	console.log(queryString);
 
     apiClient.query(queryString)
         .then(function(results) {
