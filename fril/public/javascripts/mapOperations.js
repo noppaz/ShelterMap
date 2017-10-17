@@ -83,12 +83,20 @@ function initMap() {
 	map = new ol.Map({
     target: 'map',
     layers: [
-      new ol.layer.Tile({
-        source: new ol.source.OSM({
-          //"url" : "http://tile2.opencyclemap.org/transport/{z}/{x}/{y}.png"
-        })
+    new ol.layer.Tile({
+      source: new ol.source.XYZ({
+        // url: 'https://api.mapbox.com/styles/v1/mapbox/streets-v10/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1Ijoibm9haGhvbG0iLCJhIjoiY2lrZWNmNDI2MDA0YnY4bHo3aXU1dGZkeSJ9.8Eavws7sLknJNwX_9YcEpw'
+        url: 'https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1Ijoibm9haGhvbG0iLCJhIjoiY2lrZWNmNDI2MDA0YnY4bHo3aXU1dGZkeSJ9.8Eavws7sLknJNwX_9YcEpw'
       })
+    })
     ],
+    // layers: [
+    //   new ol.layer.Tile({
+    //     source: new ol.source.OSM({
+    //       //"url" : "http://tile2.opencyclemap.org/transport/{z}/{x}/{y}.png"
+    //     })
+    //   })
+    // ],
 
     controls : ol.control.defaults({
         attribution : false

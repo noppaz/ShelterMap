@@ -45,11 +45,8 @@ router.post('/api/getFeature', function(req, res) {
 
     apiClient.query(queryString)
 	    .then(function(results) {
-	    	//console.log(results.rows);
-
 	        if (results.rows.length == 0) res.end("incorrect");
 	        else res.json(results.rows);
-
 	    })
 	    .catch(e => console.error(e.stack));
 });
@@ -68,7 +65,6 @@ router.post('/api/getPolygons', function(req, res) {
 	    .then(function(results) {
 	        if (results.rows.length == 0) res.end("incorrect");
 	        else res.json(results.rows);
-
 	    })
 	    .catch(e => console.error(e.stack));
 });
@@ -95,11 +91,8 @@ router.post('/api/getClosestFeature', function(req, res) {
 
     apiClient.query(queryString)
         .then(function(results) {
-            console.log(results.rows);
-
             if (results.rows.length == 0) res.end("incorrect");
             else res.json(results.rows);
-
         })
         .catch(e => console.error(e.stack));
 });
